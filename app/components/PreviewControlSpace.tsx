@@ -1,8 +1,8 @@
 import React, { FC, ReactElement } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, GestureResponderEvent } from "react-native";
 
-import colors from "../config/colors";
 import ControlSpace from "./common/ControlSpace";
+import colors from "../config/colors";
 
 interface PreviewControlSpaceProps {
   onRetake: (event: GestureResponderEvent) => void;

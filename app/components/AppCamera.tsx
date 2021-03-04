@@ -6,16 +6,6 @@ import { CameraType } from "expo-camera/build/Camera.types";
 import CameraControlSpace from "./CameraControlSpace";
 import CameraPreview from "./CameraPreview";
 
-const getPermission = async () => {
-  const { status } = await Camera.requestPermissionsAsync();
-  return status === "granted";
-};
-
-const takePhoto = async (camera: Camera) => {
-  const photo = await camera.takePictureAsync();
-  return photo;
-};
-
 const AppCamera: React.FC = () => {
   let camera: Camera | null;
 
@@ -28,30 +18,43 @@ const AppCamera: React.FC = () => {
   const handleCapture = async () => {
     if (!camera) return;
 
-    const photo = await takePhoto(camera);
+    const photo = await __takePhoto(camera);
     setCanPreviewPhoto(true);
     setCapturedPhoto(photo);
   };
 
-  const handleRetake = () => {
+  const __getPermission = async (): Promise<boolean> => {
+    const { status } = await Camera.requestPermissionsAsync();
+    return status === "granted";
+  };
+
+  const __takePhoto = async (camera: Camera): Promise<CameraCapturedPicture> => {
+    const photo = await camera.takePictureAsync();
+    return photo;
+  };
+
+  const __resetCamera = (): void => {
     setCanPreviewPhoto(false);
     setCapturedPhoto(null);
   };
 
-  const handleSavePhoto = () => {
-    console.warn("Saving Photo", capturedPhoto);
+  const handleRetake = (): void => {
+    __resetCamera();
+  };
 
-    setCanPreviewPhoto(false);
-    setCapturedPhoto(null);
+  const handleSavePhoto = (): void => {
+    console.warn("Saving Photo", capturedPhoto);
+    __resetCamera();
   };
 
   //onMounted
   useEffect(() => {
-    const permission = getPermission();
+    const permission = __getPermission();
     if (!permission) {
       Alert.alert("Access denied");
     } else {
       setCanRunCamera(true);
+      __resetCamera();
     }
   }, []);
 
