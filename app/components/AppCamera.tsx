@@ -2,11 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
 import { Camera, CameraCapturedPicture } from "expo-camera";
 import { CameraType } from "expo-camera/build/Camera.types";
+
 import ControlSpace from "./ControlSpace";
+import CameraPreview from "./CameraPreview";
 
 const getPermission = async () => {
   const { status } = await Camera.requestPermissionsAsync();
   return status === "granted";
+};
+
+const takePhoto = async (camera: Camera) => {
+  const photo = await camera.takePictureAsync();
+  return photo;
 };
 
 const AppCamera: React.FC = () => {
@@ -15,9 +22,14 @@ const AppCamera: React.FC = () => {
   const [canRunCamera, setCanRunCamera] = useState<boolean>(false);
   const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
   const [capturedPhoto, setCapturedPhoto] = useState<CameraCapturedPicture | null>(null);
+  const [canPreviewPhoto, setCanPreviewPhoto] = useState<boolean>(false);
 
-  const handleCapture = () => {
-    console.warn("Capture!!");
+  const handleCapture = async () => {
+    if (!camera) return;
+
+    const photo = await takePhoto(camera);
+    setCanPreviewPhoto(true);
+    setCapturedPhoto(photo);
   };
 
   //onMounted
@@ -32,7 +44,7 @@ const AppCamera: React.FC = () => {
 
   return (
     <>
-      {canRunCamera && (
+      {canRunCamera && !canPreviewPhoto && (
         <Camera
           type={cameraType}
           style={styles.container}
@@ -43,6 +55,8 @@ const AppCamera: React.FC = () => {
           <ControlSpace onCapture={handleCapture} />
         </Camera>
       )}
+
+      {canPreviewPhoto && capturedPhoto && <CameraPreview photo={capturedPhoto} />}
     </>
   );
 };
