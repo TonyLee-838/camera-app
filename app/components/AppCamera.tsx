@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
 import { Camera, CameraCapturedPicture } from "expo-camera";
 import { CameraType } from "expo-camera/build/Camera.types";
+import ControlSpace from "./ControlSpace";
 
 const getPermission = async () => {
   const { status } = await Camera.requestPermissionsAsync();
@@ -14,6 +15,10 @@ const AppCamera: React.FC = () => {
   const [canRunCamera, setCanRunCamera] = useState<boolean>(false);
   const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
   const [capturedPhoto, setCapturedPhoto] = useState<CameraCapturedPicture | null>(null);
+
+  const handleCapture = () => {
+    console.warn("Capture!!");
+  };
 
   //onMounted
   useEffect(() => {
@@ -34,7 +39,9 @@ const AppCamera: React.FC = () => {
           ref={(ref) => {
             camera = ref;
           }}
-        />
+        >
+          <ControlSpace onCapture={handleCapture} />
+        </Camera>
       )}
     </>
   );

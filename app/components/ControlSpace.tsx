@@ -1,12 +1,19 @@
 import React, { FC, ReactElement } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, GestureResponderEvent } from "react-native";
 
 import colors from "../config/colors";
+import CaptureButton from "./CaptureButton";
 
-interface ControlSpaceProps {}
+interface ControlSpaceProps {
+  onCapture: (event: GestureResponderEvent) => void;
+}
 
-const ControlSpace: FC<ControlSpaceProps> = ({ children }): ReactElement => {
-  return <View style={styles.container}>{children}</View>;
+const ControlSpace: FC<ControlSpaceProps> = ({ onCapture }): ReactElement => {
+  return (
+    <View style={styles.container}>
+      <CaptureButton onPress={onCapture} />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
