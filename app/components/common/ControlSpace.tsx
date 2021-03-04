@@ -1,11 +1,9 @@
 import React, { FC, ReactElement } from "react";
 import { View, StyleSheet } from "react-native";
 
-import colors from "../config/colors";
+import colors from "../../config/colors";
 
-interface ControlSpaceProps {}
-
-const ControlSpace: FC<ControlSpaceProps> = ({ children }): ReactElement => {
+const ControlSpace: FC = ({ children }) => {
   return <View style={styles.container}>{children}</View>;
 };
 
