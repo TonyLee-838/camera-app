@@ -1,18 +1,19 @@
 import React, { FC, ReactElement } from "react";
 import { View, StyleSheet, GestureResponderEvent } from "react-native";
 
-import colors from "../config/colors";
 import CaptureButton from "./CaptureButton";
+import ControlSpace from "./common/ControlSpace";
+import colors from "../config/colors";
 
-interface ControlSpaceProps {
+interface CameraControlSpaceProps {
   onCapture: (event: GestureResponderEvent) => void;
 }
 
-const ControlSpace: FC<ControlSpaceProps> = ({ onCapture }): ReactElement => {
+const CameraControlSpace: FC<CameraControlSpaceProps> = ({ onCapture }): ReactElement => {
   return (
-    <View style={styles.container}>
+    <ControlSpace>
       <CaptureButton onPress={onCapture} />
-    </View>
+    </ControlSpace>
   );
 };
 
@@ -26,4 +27,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-export default ControlSpace;
+export default CameraControlSpace;

@@ -1,15 +1,20 @@
-import { CameraCapturedPicture } from "expo-camera";
 import React, { FC, ReactElement } from "react";
-import { View, StyleSheet, ImageBackground } from "react-native";
+import { View, StyleSheet, ImageBackground, GestureResponderEvent } from "react-native";
+import { CameraCapturedPicture } from "expo-camera";
+
+import PreviewControlSpace from "./PreviewControlSpace";
 
 interface CameraPreviewProps {
   photo: CameraCapturedPicture;
+  onRetake: (event: GestureResponderEvent) => void;
+  onSavePhoto: (event: GestureResponderEvent) => void;
 }
 
-const CameraPreview: FC<CameraPreviewProps> = ({ photo }): ReactElement => {
+const CameraPreview: FC<CameraPreviewProps> = ({ photo, onRetake, onSavePhoto }): ReactElement => {
   return (
     <View style={styles.container}>
       <ImageBackground style={styles.image} source={{ uri: photo.uri }} />
+      <PreviewControlSpace onRetake={onRetake} onSavePhoto={onSavePhoto} />
     </View>
   );
 };
