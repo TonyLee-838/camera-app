@@ -23,10 +23,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   background: {
-    width: 85,
-    height: 85,
+    width: 95,
+    height: 95,
     borderRadius: 50,
-    bottom: 20,
     borderColor: colors.white,
     backgroundColor: colors.white,
     borderWidth: 5,

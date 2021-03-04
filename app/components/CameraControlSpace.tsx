@@ -17,14 +17,4 @@ const CameraControlSpace: FC<CameraControlSpaceProps> = ({ onCapture }): ReactEl
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    backgroundColor: colors.white,
-    position: "absolute",
-    bottom: 0,
-    display: "flex",
-    alignItems: "center",
-  },
-});
 export default CameraControlSpace;

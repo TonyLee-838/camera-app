@@ -10,11 +10,13 @@ const ControlSpace: FC = ({ children }) => {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: colors.white,
+    height: 130,
     position: "absolute",
     bottom: 0,
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.white,
   },
 });
 export default ControlSpace;
