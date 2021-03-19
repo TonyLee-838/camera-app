@@ -1,5 +1,6 @@
 import * as tf from "@tensorflow/tfjs";
 import * as posenet from "@tensorflow-models/posenet";
+import { POSENET_MODEL_URL} from '../api/http'
 
 const INPUT_WIDTH = 250;
 const INPUT_HEIGHT = 500;
@@ -12,7 +13,7 @@ export default class PoseModel {
     await tf.ready();
     await tf.getBackend();
     this.model = await posenet.load({
-      // modelUrl: this.modelUrl,
+      modelUrl: POSENET_MODEL_URL,
       architecture: "MobileNetV1",
       outputStride: 8,
       inputResolution: { width: 640, height: 480 },
