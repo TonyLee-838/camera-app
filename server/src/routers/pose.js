@@ -4,7 +4,8 @@ const query = require("../db/query");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { imageName } = req.query;
+  // const { imageName } = req.query;
+  const imageName = '11075.jpg'
 
   const cmd1 = `select label,x,y from parts join images on parts.imageId=images.Id where images.name='${imageName}'`;
   const result1 = await query(cmd1);
