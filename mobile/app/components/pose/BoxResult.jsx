@@ -10,33 +10,42 @@ const CONTROL_SPACE_HEIGHT = 120;
 /**
  * @param {{ position:number[] }} props
  */
-const BoxResult = ({ position }) => {
+const BoxResult = ({ position, color, imageDimensions = {} }) => {
   const [deviceDimensions] = useState({
     width: Dimensions.get("screen").width,
     height: Dimensions.get("screen").height,
   });
 
+  const imageWidth = imageDimensions.width || COCO_INPUT_WIDTH;
+  const imageHeight = imageDimensions.height || COCO_INPUT_HEIGHT;
+
+  // const _imageDimensions = Object.assign(
+  //   {
+  //     width: COCO_INPUT_WIDTH,
+  //     height: COCO_INPUT_HEIGHT,
+  //   },
+  //   imageDimensions
+  // );
+
   const regulateBoxPosition = (position) => {
     const [x, y, width, height] = position;
 
     return {
-      x: ((COCO_INPUT_WIDTH - x) * deviceDimensions.width) / COCO_INPUT_WIDTH,
+      x: ((imageWidth - x) * deviceDimensions.width) / imageWidth,
       y:
         (deviceDimensions.height - CONTROL_SPACE_HEIGHT) / 2 -
-        ((0.5 * COCO_INPUT_HEIGHT - y) * deviceDimensions.width) / COCO_INPUT_WIDTH,
-      width: (-1 * width * deviceDimensions.width) / COCO_INPUT_WIDTH,
-      height: (height * deviceDimensions.width) / COCO_INPUT_WIDTH,
+        ((0.5 * imageHeight - y) * deviceDimensions.width) / imageWidth,
+      width: (-1 * width * deviceDimensions.width) / imageWidth,
+      height: (height * deviceDimensions.width) / imageWidth,
     };
   };
 
   const { x, y, width, height } = regulateBoxPosition(position);
 
-  console.warn(x, y, width, height);
-
   return (
     <View style={styles.container}>
       <SVG width="100%" height="83%">
-        <Rect x={x} y={y} width={width} height={height} fill={colors.secondary} fillOpacity={0.4} />
+        <Rect x={x} y={y} width={width} height={height} fill={color} fillOpacity={0.4} />
       </SVG>
     </View>
   );
