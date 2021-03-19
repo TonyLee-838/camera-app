@@ -1,7 +1,13 @@
 import * as tf from "@tensorflow/tfjs";
 import vector from "../data/eigenvectors.json";
 
-import { PREDICT_MODEL_URL } from "../api/http";
+import {bundleResourceIO} from "@tensorflow/tfjs-react-native";
+const modelJSON = require("../assets/model/predict/model.json");
+const w1 = require("../assets/model/predict/group1-shard1of5.bin");
+const w2 = require("../assets/model/predict/group1-shard2of5.bin");
+const w3 = require("../assets/model/predict/group1-shard3of5.bin");
+const w4 = require("../assets/model/predict/group1-shard4of5.bin");
+const w5 = require("../assets/model/predict/group1-shard5of5.bin");
 
 class PredictModel {
   constructor(modelUrl) {
@@ -9,13 +15,12 @@ class PredictModel {
     this.inputMin = -1;
     this.inputMax = 1;
     this.normalizationConstant = (this.inputMax - this.inputMin) / 255.0;
-    this.modelUrl = modelUrl;
     this.init();
   }
 
   init = async () => {
     await tf.ready();
-    this.model = await tf.loadGraphModel(PREDICT_MODEL_URL);
+    this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1,w2,w3,w4,w5]))
     console.warn("load PredictModel success");
   };
 

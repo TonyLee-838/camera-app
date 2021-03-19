@@ -2,5 +2,6 @@ mobile/.expo/
 mobile/.expo-shared/
 mobile/.vscode/
 mobile/node_modules/
-
+server/node_modules/
+server/public/images/
 */.DS_Store
