@@ -1,7 +1,7 @@
 import * as tf from "@tensorflow/tfjs";
 import vector from "../data/eigenvectors.json";
 
-import {bundleResourceIO} from "@tensorflow/tfjs-react-native";
+import { bundleResourceIO } from "@tensorflow/tfjs-react-native";
 const modelJSON = require("../assets/model/predict/model.json");
 const w1 = require("../assets/model/predict/group1-shard1of5.bin");
 const w2 = require("../assets/model/predict/group1-shard2of5.bin");
@@ -20,7 +20,7 @@ class PredictModel {
 
   init = async () => {
     await tf.ready();
-    this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1,w2,w3,w4,w5]))
+    this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1, w2, w3, w4, w5]));
     console.warn("load PredictModel success");
   };
 

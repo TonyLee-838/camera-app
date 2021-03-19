@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import * as tf from "@tensorflow/tfjs";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
@@ -10,8 +10,6 @@ import CameraPreview from "../components/preview/CameraPreview";
 import PreviewControlSpace from "../components/preview/PreviewControlSpace";
 import ImageScrollRoll from "../components/camera/ImageScrollRoll";
 
-// import { PredictModel, PoseModel, CocoModel } from "../tools";
-
 import PredictModel from "../tools/PredictModel";
 import PoseModel from "../tools/PoseModel";
 import CocoModel from "../tools/CocoModel";
@@ -20,6 +18,7 @@ import { getPredictImages, getImagePose } from "../api/http";
 import tryCatch from "../helpers/error-handler";
 import BoxResult from "../components/pose/BoxResult";
 import PoseResult from "../components/pose/PoseResult";
+import colors from "../config/colors";
 
 function CameraScreen(props) {
   let glCamera = useRef(null);
@@ -47,12 +46,26 @@ function CameraScreen(props) {
   const [previewImage, setPreviewImage] = useState(null);
   const [poseData, setPoseData] = useState(null);
   const [imageUrls, setImageUrls] = useState(null);
-  const [box, setBox] = useState([]);
+  const [userBox, setUserBox] = useState([]);
+
+  //mode: "photo" | "bounding" | "pose"
+  const [mode, setMode] = useState("photo");
+  const [similarImageBox, setSimilarImageBox] = useState([]);
+  const [similarImageDimensions, setSimilarImageDimensions] = useState([]);
+
+  useEffect(() => {
+    if (mode === "photo") return;
+
+    setInterval(async () => {
+      if (mode === "bounding") await detectBoundingBox();
+      if (mode === "pose") await detectPoseKeyPoints();
+    }, 500);
+  }, [mode]);
 
   const detectBoundingBox = tryCatch(async () => {
     const imageTensor = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
-    setBox(result[0].bbox);
+    setUserBox(result[0].bbox);
   });
 
   const detectPoseKeyPoints = tryCatch(async () => {
@@ -63,11 +76,16 @@ function CameraScreen(props) {
     setPoseData(result);
   });
 
-  const searchForSimilarImages = tryCatch(async () => {
-    const tensorArray = predictModel.getImageCompressedTensorArray(imageTensor);
-    const result = await getPredictImages({ features: tensorArray });
-    setImageUrls(result);
-  });
+  const searchForSimilarImages = async () => {
+    try {
+      const imageTensor = glCamera.current.getRealTimeImage();
+      const tensorArray = predictModel.getImageCompressedTensorArray(imageTensor);
+      const result = await getPredictImages({ features: tensorArray });
+      setImageUrls(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const preview = tryCatch(async () => {
     const image = await glCamera.current.captureImage();
@@ -87,6 +105,7 @@ function CameraScreen(props) {
   };
 
   const onPredict = async () => {
+    await searchForSimilarImages();
     // await detectBoundingBox();
     // await detectPoseKeyPoints();
   };
@@ -106,8 +125,14 @@ function CameraScreen(props) {
   };
 
   const onSelectImage = async (e, imageName) => {
-    const result = await getImagePose({ imageName });
-    console.warn("imageName:", result);
+    const { image } = await getImagePose({ imageName });
+    // console.warn("imageName:", image);
+
+    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
+    setSimilarImageDimensions({ width: image.width, height: image.height });
+
+    setMode("bounding");
+    setImageUrls(null);
   };
 
   return (
@@ -115,7 +140,17 @@ function CameraScreen(props) {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} style={styles.camera} />
-          {box.length !== 0 && <BoxResult position={box} />}
+          {mode === "bounding" && userBox.length !== 0 && (
+            <BoxResult position={userBox} color={colors.primary} />
+          )}
+          {mode === "bounding" && (
+            <BoxResult
+              position={similarImageBox}
+              imageDimensions={similarImageDimensions}
+              color={colors.secondary}
+            />
+          )}
+
           {poseData && <PoseResult poseData={poseData} />}
           {imageUrls && (
             <ImageScrollRoll
@@ -150,6 +185,12 @@ const styles = StyleSheet.create({
   imageScrollRoll: {
     position: "absolute",
     bottom: "17%",
+  },
+  image: {
+    position: "absolute",
+    width: 30,
+    height: 30,
+    zIndex: 10,
   },
 });
 
