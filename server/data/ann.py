@@ -1,7 +1,7 @@
 from annoy import AnnoyIndex
 import sys
 
-#将nodejs传递过来的参数转化为数组
+# 将nodejs传递过来的参数转化为数组
 features=sys.argv[1]
 features=features.split(',')
 features=[ float(x) for x in features ]

@@ -9,10 +9,8 @@ const CONTROL_SPACE_HEIGHT = 120;
 
 const regulatePosition = (x, y, imageDimensions, deviceDimensions) => {
   return {
-    x: ((750 - x) * deviceDimensions.width) / 750,
-    y:
-      (deviceDimensions.height - CONTROL_SPACE_HEIGHT) / 2 -
-      ((0.5 * 1500 - y) * deviceDimensions.width) / 750,
+    x: (x * deviceDimensions.width) / imageDimensions.width,
+    y: ((y * deviceDimensions.height) / imageDimensions.height) * 0.83,
   };
 };
 
@@ -30,7 +28,7 @@ const regulatePosition = (x, y, imageDimensions, deviceDimensions) => {
  * @returns
  */
 
-const PoseResult = ({ poseData }) => {
+const PoseResult = ({ poseData, color }) => {
   const deviceDimensions = {
     width: Dimensions.get("screen").width,
     height: Dimensions.get("screen").height,
@@ -50,14 +48,13 @@ const PoseResult = ({ poseData }) => {
   });
 
   const pointPairs = getAdjacentKeyPoints(regulatedKeyPoints, 0.5);
-  console.warn("pairs", pointPairs);
 
   return (
     <View style={styles.container}>
       {regulatedKeyPoints.map((point) => (
-        <KeyPoint position={point.position} key={point.part} />
+        <KeyPoint position={point.position} key={point.part} color={color} />
       ))}
-      <Lines pointPairs={pointPairs} />
+      <Lines pointPairs={pointPairs} color={color} />
     </View>
   );
 };

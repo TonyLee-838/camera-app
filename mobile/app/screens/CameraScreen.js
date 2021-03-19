@@ -46,12 +46,15 @@ function CameraScreen(props) {
   const [previewImage, setPreviewImage] = useState(null);
   const [poseData, setPoseData] = useState(null);
   const [imageUrls, setImageUrls] = useState(null);
-  const [userBox, setUserBox] = useState([]);
 
   //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState("photo");
+
+  const [userBox, setUserBox] = useState([]);
   const [similarImageBox, setSimilarImageBox] = useState([]);
   const [similarImageDimensions, setSimilarImageDimensions] = useState([]);
+
+  const [similarImageParts, setSimilarImageParts] = useState([]);
 
   useEffect(() => {
     if (mode === "photo") return;
@@ -66,6 +69,8 @@ function CameraScreen(props) {
     const imageTensor = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
     setUserBox(result[0].bbox);
+
+    imageTensor.dispose();
   });
 
   const detectPoseKeyPoints = tryCatch(async () => {
@@ -74,6 +79,8 @@ function CameraScreen(props) {
     const imageTensor = glCamera.current.getRealTimeImage();
     const result = await poseModel.analysePose(imageTensor);
     setPoseData(result);
+
+    imageTensor.dispose();
   });
 
   const searchForSimilarImages = async () => {
@@ -82,6 +89,8 @@ function CameraScreen(props) {
       const tensorArray = predictModel.getImageCompressedTensorArray(imageTensor);
       const result = await getPredictImages({ features: tensorArray });
       setImageUrls(result);
+
+      imageTensor.dispose();
     } catch (error) {
       console.error(error);
     }
@@ -125,13 +134,30 @@ function CameraScreen(props) {
   };
 
   const onSelectImage = async (e, imageName) => {
-    const { image } = await getImagePose({ imageName });
-    // console.warn("imageName:", image);
+    const { image, parts } = await getImagePose({ imageName });
+    // const image = data.image;
+    // console.warn("imageName:", data);
 
     setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
     setSimilarImageDimensions({ width: image.width, height: image.height });
 
-    setMode("bounding");
+    const keypoints = parts.map((part) => ({
+      position: {
+        x: part.x,
+        y: part.y,
+      },
+      part: part.label,
+      score: 1,
+    }));
+
+    setSimilarImageParts({
+      width: image.width,
+      height: image.height,
+      keypoints,
+    });
+
+    // setMode("bounding");
+    setMode("pose");
     setImageUrls(null);
   };
 
@@ -151,7 +177,8 @@ function CameraScreen(props) {
             />
           )}
 
-          {poseData && <PoseResult poseData={poseData} />}
+          {mode === "pose" && poseData && <PoseResult poseData={poseData} color={colors.primary} />}
+          {mode === "pose" && <PoseResult poseData={similarImageParts} color={colors.secondary} />}
           {imageUrls && (
             <ImageScrollRoll
               images={imageUrls}
@@ -185,12 +212,6 @@ const styles = StyleSheet.create({
   imageScrollRoll: {
     position: "absolute",
     bottom: "17%",
-  },
-  image: {
-    position: "absolute",
-    width: 30,
-    height: 30,
-    zIndex: 10,
   },
 });
 

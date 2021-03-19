@@ -17,7 +17,7 @@ import colors from "../../config/colors";
 //   { from: "rightEye", to: "leftEye" },
 // ];
 
-const Lines = ({ pointPairs }) => {
+const Lines = ({ pointPairs, color }) => {
   // const connectableLines = LINES_CONFIG.filter((line) => {
   //   return keyPoints[line.from] && keyPoints[line.to];
   // }).map((line) => ({
@@ -37,7 +37,7 @@ const Lines = ({ pointPairs }) => {
             y1={point1.position.y}
             x2={point2.position.x}
             y2={point2.position.y}
-            stroke={colors.primary}
+            stroke={color}
             strokeWidth={3}
           />
         ))}
