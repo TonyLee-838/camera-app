@@ -1,5 +1,5 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Dimensions } from "react-native";
 import SVG, { Rect } from "react-native-svg";
 import colors from "../../config/colors";
 
@@ -24,12 +24,14 @@ const BoxResult = ({ position }) => {
       y:
         (deviceDimensions.height - CONTROL_SPACE_HEIGHT) / 2 -
         ((0.5 * COCO_INPUT_HEIGHT - y) * deviceDimensions.width) / COCO_INPUT_WIDTH,
-      width: (width * deviceDimensions.width) / COCO_INPUT_WIDTH,
-      height: (height * deviceDimensions.height) / COCO_INPUT_HEIGHT,
+      width: (-1 * width * deviceDimensions.width) / COCO_INPUT_WIDTH,
+      height: (height * deviceDimensions.width) / COCO_INPUT_WIDTH,
     };
   };
 
   const { x, y, width, height } = regulateBoxPosition(position);
+
+  console.warn(x, y, width, height);
 
   return (
     <View style={styles.container}>

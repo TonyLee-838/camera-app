@@ -4,6 +4,7 @@ import { View, StyleSheet } from "react-native";
 import colors from "../../config/colors";
 
 const KeyPoint = ({ position }) => {
+  console.warn(position.x, position.y);
   const layout = {
     top: position.y,
     left: position.x,

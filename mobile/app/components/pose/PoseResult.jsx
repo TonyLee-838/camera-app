@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Dimensions } from "react-native";
 
 import { getAdjacentKeyPoints } from "@tensorflow-models/posenet/dist/util";
 import KeyPoint from "./KeyPoint";
@@ -9,10 +9,10 @@ const CONTROL_SPACE_HEIGHT = 120;
 
 const regulatePosition = (x, y, imageDimensions, deviceDimensions) => {
   return {
-    x: ((imageDimensions.width - x) * deviceDimensions.width) / imageDimensions.width,
+    x: ((750 - x) * deviceDimensions.width) / 750,
     y:
       (deviceDimensions.height - CONTROL_SPACE_HEIGHT) / 2 -
-      ((0.5 * imageDimensions.height - y) * deviceDimensions.width) / imageDimensions.width,
+      ((0.5 * 1500 - y) * deviceDimensions.width) / 750,
   };
 };
 
@@ -41,19 +41,21 @@ const PoseResult = ({ poseData }) => {
     height: poseData.height,
   };
 
-  const regulatedKeyPoints = poseData.keypoints.map(({ position, part }) => {
+  const regulatedKeyPoints = poseData.keypoints.map(({ position, part, score }) => {
     return {
       position: regulatePosition(position.x, position.y, imageDimensions, deviceDimensions),
       part,
+      score,
     };
   });
 
   const pointPairs = getAdjacentKeyPoints(regulatedKeyPoints, 0.5);
+  console.warn("pairs", pointPairs);
 
   return (
     <View style={styles.container}>
       {regulatedKeyPoints.map((point) => (
-        <KeyPoint point={point.position} key={point.part} />
+        <KeyPoint position={point.position} key={point.part} />
       ))}
       <Lines pointPairs={pointPairs} />
     </View>

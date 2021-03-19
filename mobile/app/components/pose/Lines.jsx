@@ -32,6 +32,7 @@ const Lines = ({ pointPairs }) => {
       <SVG width="100%" height="83%">
         {pointPairs.map(([point1, point2]) => (
           <Line
+            key={Math.random()}
             x1={point1.position.x}
             y1={point1.position.y}
             x2={point2.position.x}
@@ -47,7 +48,7 @@ const Lines = ({ pointPairs }) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
+    // position: "absolute",
   },
 });
 

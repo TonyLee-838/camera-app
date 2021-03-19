@@ -3,7 +3,7 @@ import vector from "../data/eigenvectors.json";
 
 import { PREDICT_MODEL_URL } from "../api/http";
 
-export default class PredictModel {
+class PredictModel {
   constructor(modelUrl) {
     this.IMAGE_SIZE = 224;
     this.inputMin = -1;
@@ -68,3 +68,5 @@ export default class PredictModel {
     });
   };
 }
+
+export default PredictModel;
