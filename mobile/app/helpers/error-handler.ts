@@ -1,7 +1,7 @@
 const tryCatch = (fn) => {
-  return () => {
+  return async () => {
     try {
-      return fn();
+      return await fn();
     } catch (error) {
       console.error(error);
     }

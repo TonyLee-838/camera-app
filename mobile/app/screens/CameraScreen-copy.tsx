@@ -19,10 +19,12 @@ import tryCatch from "../helpers/error-handler";
 import BoxResult from "../components/pose/BoxResult";
 import PoseResult from "../components/pose/PoseResult";
 import colors from "../config/colors";
-import { getInputTensorDimensions } from "@tensorflow-models/posenet/dist/util";
 
-function CameraScreen(props) {
-  let glCamera = useRef(null);
+import { Tensor3D } from "@tensorflow/tfjs";
+import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage } from "../types";
+
+function CameraScreen() {
+  let glCamera = useRef(null!);
 
   useEffect(() => {
     init();
@@ -32,30 +34,29 @@ function CameraScreen(props) {
     try {
       await tf.ready();
       console.warn("tf - ready");
-      // setPredictModel(new PredictModel());
-      // setPoseModel(new PoseModel());
+      setPredictModel(new PredictModel());
+      setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
     } catch (error) {
       console.error(error);
     }
   };
 
-  const [predictModel, setPredictModel] = useState(null);
-  const [poseModel, setPoseModel] = useState(null);
-  const [cocoModel, setCocoModel] = useState(null);
+  const [predictModel, setPredictModel] = useState<PredictModel>(null!);
+  const [poseModel, setPoseModel] = useState<PoseModel>(null!);
+  const [cocoModel, setCocoModel] = useState<CocoModel>(null!);
   const [isPreview, setIsPreview] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const [poseData, setPoseData] = useState(null);
-  const [imageUrls, setImageUrls] = useState(null);
+  const [poseData, setPoseData] = useState<PoseData>(null);
+  const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
   //mode: "photo" | "bounding" | "pose"
-  const [mode, setMode] = useState("photo");
+  const [mode, setMode] = useState<DetectMode>("photo");
 
   const [userBox, setUserBox] = useState([]);
   const [similarImageBox, setSimilarImageBox] = useState([]);
-  const [similarImageDimensions, setSimilarImageDimensions] = useState([]);
-
-  const [similarImageParts, setSimilarImageParts] = useState([]);
+  const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
+  const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
   useEffect(() => {
     if (mode === "photo") return;
@@ -63,13 +64,12 @@ function CameraScreen(props) {
     setInterval(async () => {
       if (mode === "bounding") await detectBoundingBox();
       if (mode === "pose") await detectPoseKeyPoints();
-    }, 100);
+    }, 500);
   }, [mode]);
 
   const detectBoundingBox = tryCatch(async () => {
-    const imageTensor = glCamera.current.getRealTimeImage();
+    const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
-    console.warn('result[0].bbox',result[0].bbox)
     setUserBox(result[0].bbox);
 
     imageTensor.dispose();
@@ -78,7 +78,7 @@ function CameraScreen(props) {
   const detectPoseKeyPoints = tryCatch(async () => {
     if (!poseModel) return;
 
-    const imageTensor = glCamera.current.getRealTimeImage();
+    const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
     const result = await poseModel.analysePose(imageTensor);
     setPoseData(result);
 
@@ -87,10 +87,10 @@ function CameraScreen(props) {
 
   const searchForSimilarImages = async () => {
     try {
-      const imageTensor = glCamera.current.getRealTimeImage();
-      const tensorArray = predictModel.getImageCompressedTensorArray(imageTensor);
-      const result = await getPredictImages({ features: tensorArray });
-      setImageUrls(result);
+      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
+      const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
+      const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
+      setPredictedImages(result);
 
       imageTensor.dispose();
     } catch (error) {
@@ -105,47 +105,29 @@ function CameraScreen(props) {
   });
 
   const onCapture = async () => {
-    // setInterval(async () => {
-    //   await detectPoseKeyPoints();
-    // }, 300);
-    const imageTensor = glCamera.current.getRealTimeImage();
-    const result = await cocoModel.getBoundingBox(imageTensor);
-    console.warn(result)
-    setUserBox(result[0].bbox);
-    setMode("bounding");
+    setInterval(async () => {
+      await detectPoseKeyPoints();
+    }, 300);
   };
 
   const onSave = () => {
     MediaLibrary.saveToLibraryAsync(previewImage.uri);
-    alert("保存成功");
+    // alert("保存成功");
   };
 
   const onPredict = async () => {
-    const { image } = await getImagePose({ imageName:'10379.jpg' });
-    // console.warn("imageName:", image);
-
-    setSimilarImageBox([image.x1, image.y1, image.x2, image.y2 ]);
-    setSimilarImageDimensions({ width: image.width, height: image.height });
-    setMode("bounding");
+    await searchForSimilarImages();
+    // await detectBoundingBox();
+    // await detectPoseKeyPoints();
   };
 
   const onOpenImageFolder = async () => {
-    // ImagePicker.launchImageLibraryAsync({
-    //   mediaTypes: ImagePicker.MediaTypeOptions.All,
-    //   allowsEditing: true,
-    //   aspect: [4, 3],
-    //   quality: 1,
-    // });
-    const { image } = await getImagePose({ imageName:'10560.jpg' });
-    // console.warn("imageName:", image);
-    console.warn('image',image)
-
-    setSimilarImageBox([image.x1, image.y1, image.x2 , image.y2]);
-    setSimilarImageDimensions({ width: image.width, height: image.height });
-
-    detectBoundingBox()
-    // onSelectImage()
-    //setMode('bounding')
+    ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
   };
 
   const onRetake = () => {
@@ -154,11 +136,11 @@ function CameraScreen(props) {
   };
 
   const onSelectImage = async (e, imageName) => {
-    const { image, parts } = await getImagePose({ imageName });
+    const { image, parts }: PoseResponse = await getImagePose({ imageName });
     // const image = data.image;
     // console.warn("imageName:", data);
 
-    setSimilarImageBox([image.x1, image.y1, image.x2 , image.y2]);
+    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
     setSimilarImageDimensions({ width: image.width, height: image.height });
 
     const keypoints = parts.map((part) => ({
@@ -170,7 +152,7 @@ function CameraScreen(props) {
       score: 1,
     }));
 
-    setSimilarImageParts({
+    setSimilarImagePose({
       width: image.width,
       height: image.height,
       keypoints,
@@ -178,18 +160,18 @@ function CameraScreen(props) {
 
     // setMode("bounding");
     setMode("pose");
-    setImageUrls(null);
+    setPredictedImages(null);
   };
 
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
-          <GLCamera ref={glCamera} style={styles.camera} />
+          <GLCamera ref={glCamera} />
           {mode === "bounding" && userBox.length !== 0 && (
             <BoxResult position={userBox} color={colors.primary} />
           )}
-          {mode === "bounding" && similarImageBox.length!==0&&(
+          {mode === "bounding" && (
             <BoxResult
               position={similarImageBox}
               imageDimensions={similarImageDimensions}
@@ -198,14 +180,14 @@ function CameraScreen(props) {
           )}
 
           {mode === "pose" && poseData && (
-            <PoseResult poseData={poseData} color={colors.purple} target="user" />
+            <PoseResult poseData={poseData} color={colors.primary} target="user" />
           )}
-          {/* {mode === "pose" && (
-            <PoseResult poseData={similarImageParts} color={colors.secondary} target="image" />
-          )} */}
-          {imageUrls && (
+          {mode === "pose" && (
+            <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
+          )}
+          {predictedImages && (
             <ImageScrollRoll
-              images={imageUrls}
+              images={predictedImages}
               style={styles.imageScrollRoll}
               onSelectImage={onSelectImage}
             />

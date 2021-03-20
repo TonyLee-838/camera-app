@@ -2,8 +2,8 @@ import * as tf from "@tensorflow/tfjs";
 import * as posenet from "@tensorflow-models/posenet";
 import { POSENET_MODEL_URL } from "../api/http";
 
-const INPUT_WIDTH = 250;
-const INPUT_HEIGHT = 500;
+const INPUT_WIDTH = 750;
+const INPUT_HEIGHT = 1500;
 export default class PoseModel {
   constructor(modelUrl) {
     // this.modelUrl = modelUrl;
@@ -23,9 +23,10 @@ export default class PoseModel {
     console.warn("load PoseModel success");
   }
   async analysePose(imageTensor) {
-    const { keypoints } = await this.model.estimateSinglePose(imageTensor);
+    const result = await this.model.estimateSinglePose(imageTensor, { flipHorizontal: true });
+
     return {
-      keypoints,
+      keypoints: result.keypoints,
       width: INPUT_WIDTH,
       height: INPUT_HEIGHT,
     };
