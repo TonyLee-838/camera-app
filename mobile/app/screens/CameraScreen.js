@@ -31,8 +31,8 @@ function CameraScreen(props) {
     try {
       await tf.ready();
       console.warn("tf - ready");
-      setPredictModel(new PredictModel());
-      setPoseModel(new PoseModel());
+      // setPredictModel(new PredictModel());
+      // setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
     } catch (error) {
       console.error(error);
@@ -59,13 +59,15 @@ function CameraScreen(props) {
     setInterval(async () => {
       if (mode === "bounding") await detectBoundingBox();
       if (mode === "pose") await detectPoseKeyPoints();
-    }, 500);
+    }, 1000);
   }, [mode]);
 
   const detectBoundingBox = tryCatch(async () => {
     const imageTensor = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
+    console.warn('result[0].bbox',result[0].bbox)
     setUserBox(result[0].bbox);
+    setMode('bounding')
   });
 
   const detectPoseKeyPoints = tryCatch(async () => {
@@ -94,9 +96,14 @@ function CameraScreen(props) {
   });
 
   const onCapture = async () => {
-    setInterval(async () => {
-      await detectPoseKeyPoints();
-    }, 300);
+    // setInterval(async () => {
+    //   await detectPoseKeyPoints();
+    // }, 300);
+    const imageTensor = glCamera.current.getRealTimeImage();
+    const result = await cocoModel.getBoundingBox(imageTensor);
+    console.warn(result)
+    setUserBox(result[0].bbox);
+    setMode("bounding");
   };
 
   const onSave = () => {
@@ -105,18 +112,31 @@ function CameraScreen(props) {
   };
 
   const onPredict = async () => {
-    await searchForSimilarImages();
-    // await detectBoundingBox();
-    // await detectPoseKeyPoints();
+    const { image } = await getImagePose({ imageName:'10379.jpg' });
+    // console.warn("imageName:", image);
+
+    setSimilarImageBox([image.x1, image.y1, image.x2, image.y2 ]);
+    setSimilarImageDimensions({ width: image.width, height: image.height });
+    setMode("bounding");
   };
 
   const onOpenImageFolder = async () => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    // ImagePicker.launchImageLibraryAsync({
+    //   mediaTypes: ImagePicker.MediaTypeOptions.All,
+    //   allowsEditing: true,
+    //   aspect: [4, 3],
+    //   quality: 1,
+    // });
+    const { image } = await getImagePose({ imageName:'10560.jpg' });
+    // console.warn("imageName:", image);
+    console.warn('image',image)
+
+    setSimilarImageBox([image.x1, image.y1, image.x2 , image.y2]);
+    setSimilarImageDimensions({ width: image.width, height: image.height });
+
+    detectBoundingBox()
+    // onSelectImage()
+    //setMode('bounding')
   };
 
   const onRetake = () => {
@@ -124,15 +144,15 @@ function CameraScreen(props) {
     setIsPreview(false);
   };
 
-  const onSelectImage = async (e, imageName) => {
-    const { image } = await getImagePose({ imageName });
+  const onSelectImage = async () => {
+    const { image } = await getImagePose({ imageName:'10379.jpg' });
     // console.warn("imageName:", image);
 
-    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
+    setSimilarImageBox([image.x1, image.y1, image.x2 , image.y2]);
     setSimilarImageDimensions({ width: image.width, height: image.height });
 
-    setMode("bounding");
-    setImageUrls(null);
+    // setMode("bounding");
+    // setImageUrls(null);
   };
 
   return (
@@ -143,7 +163,7 @@ function CameraScreen(props) {
           {mode === "bounding" && userBox.length !== 0 && (
             <BoxResult position={userBox} color={colors.primary} />
           )}
-          {mode === "bounding" && (
+          {mode === "bounding" && similarImageBox.length!==0&&(
             <BoxResult
               position={similarImageBox}
               imageDimensions={similarImageDimensions}

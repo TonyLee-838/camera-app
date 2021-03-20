@@ -16,7 +16,6 @@ export default class PoseModel {
       modelUrl: POSENET_MODEL_URL,
       architecture: "ResNet50",
       outputStride: 32,
-      // inputResolution: { width: 640, height: 480 },
       inputResolution: 500,
       quantBytes: 1,
       multiplier: 1,

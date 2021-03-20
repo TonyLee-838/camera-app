@@ -23,6 +23,7 @@ void main() {
 
 let cameraTexture;
 let _gl;
+
 const GLCameraScreen = forwardRef((props, ref) => {
   let camera;
   let glView;
@@ -101,7 +102,7 @@ const GLCameraScreen = forwardRef((props, ref) => {
   return (
     <View style={styles.container}>
       <Camera
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: '100%', height: '100%' }}
         ref={(ref) => (camera = ref)}
         defaultOnFocusComponent={true}
       />
