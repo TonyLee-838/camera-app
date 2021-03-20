@@ -11,7 +11,7 @@ interface LinesProps {
 const Lines = ({ pointPairs, color }: LinesProps) => {
   return (
     <View>
-      <SVG width="100%" height="83%">
+      <SVG width="100%" height="100%">
         {pointPairs.map(([point1, point2], i) => (
           <Line
             key={`line-${i}`}

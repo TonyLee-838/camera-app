@@ -19,6 +19,7 @@ import tryCatch from "../helpers/error-handler";
 import BoxResult from "../components/pose/BoxResult";
 import PoseResult from "../components/pose/PoseResult";
 import colors from "../config/colors";
+import { getInputTensorDimensions } from "@tensorflow-models/posenet/dist/util";
 
 function CameraScreen(props) {
   let glCamera = useRef(null);
@@ -62,7 +63,7 @@ function CameraScreen(props) {
     setInterval(async () => {
       if (mode === "bounding") await detectBoundingBox();
       if (mode === "pose") await detectPoseKeyPoints();
-    }, 500);
+    }, 100);
   }, [mode]);
 
   const detectBoundingBox = tryCatch(async () => {
@@ -177,8 +178,12 @@ function CameraScreen(props) {
             />
           )}
 
-          {mode === "pose" && poseData && <PoseResult poseData={poseData} color={colors.primary} />}
-          {mode === "pose" && <PoseResult poseData={similarImageParts} color={colors.secondary} />}
+          {mode === "pose" && poseData && (
+            <PoseResult poseData={poseData} color={colors.purple} target="user" />
+          )}
+          {/* {mode === "pose" && (
+            <PoseResult poseData={similarImageParts} color={colors.secondary} target="image" />
+          )} */}
           {imageUrls && (
             <ImageScrollRoll
               images={imageUrls}
