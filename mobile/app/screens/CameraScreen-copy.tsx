@@ -179,8 +179,12 @@ function CameraScreen() {
             />
           )}
 
-          {mode === "pose" && poseData && <PoseResult poseData={poseData} color={colors.primary} />}
-          {mode === "pose" && <PoseResult poseData={similarImagePose} color={colors.secondary} />}
+          {mode === "pose" && poseData && (
+            <PoseResult poseData={poseData} color={colors.primary} target="user" />
+          )}
+          {mode === "pose" && (
+            <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
+          )}
           {predictedImages && (
             <ImageScrollRoll
               images={predictedImages}
