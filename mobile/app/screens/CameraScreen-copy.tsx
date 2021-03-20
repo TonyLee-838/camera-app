@@ -21,7 +21,7 @@ import PoseResult from "../components/pose/PoseResult";
 import colors from "../config/colors";
 
 import { Tensor3D } from "@tensorflow/tfjs";
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage } from "../types";
+import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from "../types";
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -45,7 +45,7 @@ function CameraScreen() {
   const [predictModel, setPredictModel] = useState<PredictModel>(null!);
   const [poseModel, setPoseModel] = useState<PoseModel>(null!);
   const [cocoModel, setCocoModel] = useState<CocoModel>(null!);
-  const [isPreview, setIsPreview] = useState(false);
+  const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [poseData, setPoseData] = useState<PoseData>(null);
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
@@ -53,8 +53,8 @@ function CameraScreen() {
   //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>("photo");
 
-  const [userBox, setUserBox] = useState([]);
-  const [similarImageBox, setSimilarImageBox] = useState([]);
+  const [userBox, setUserBox] = useState<BoxPosition>([]);
+  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([]);
   const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
