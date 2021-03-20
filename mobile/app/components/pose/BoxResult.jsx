@@ -7,9 +7,6 @@ const COCO_INPUT_WIDTH = 750;
 const COCO_INPUT_HEIGHT = 1500;
 const CONTROL_SPACE_HEIGHT = 120;
 
-/**
- * @param {{ position:number[] }} props
- */
 const BoxResult = ({ position, color, imageDimensions = {} }) => {
   const [deviceDimensions] = useState({
     width: Dimensions.get("screen").width,
