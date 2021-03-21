@@ -1,9 +1,24 @@
-import { Dimensions2D, BoxPosition } from '../types';
+import { Keypoint } from '../tools/posenet';
+import { Dimensions2D, BoxPosition, PoseData } from '../types';
 
 const CONTROL_SPACE_HEIGHT_PERCENTAGE = 0.18;
 const CONTROL_SPACE_HEIGHT = 120;
 
-export const regulateImagePosePosition = (
+export const getRegulatedImageKeypoints = (
+  poseData: PoseData,
+  deviceDimensions: Dimensions2D
+): Keypoint[] => {
+  const imageDimensions = { width: poseData.width, height: poseData.height };
+  return poseData.keypoints.map(({ position, part, score }) => {
+    return {
+      position: regulateImagePosePosition(position.x, position.y, imageDimensions, deviceDimensions),
+      part,
+      score,
+    };
+  });
+};
+
+const regulateImagePosePosition = (
   x: number,
   y: number,
   imageDimensions: Dimensions2D,
@@ -22,7 +37,22 @@ export const regulateImagePosePosition = (
   };
 };
 
-export const regulateUserPosePosition = (
+export const getRegulatedUserKeypoints = (
+  poseData: PoseData,
+  deviceDimensions: Dimensions2D
+): Keypoint[] => {
+  const inputDimensions = { width: poseData.width, height: poseData.height };
+
+  return poseData.keypoints.map(({ position, part, score }) => {
+    return {
+      position: regulateUserPosePosition(position.x, position.y, inputDimensions, deviceDimensions),
+      part,
+      score,
+    };
+  });
+};
+
+const regulateUserPosePosition = (
   x: number,
   y: number,
   inputDimensions: Dimensions2D,

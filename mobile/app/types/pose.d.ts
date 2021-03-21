@@ -1,4 +1,4 @@
-import { Keypoint } from "@tensorflow-models/posenet";
+export { Keypoint } from '@tensorflow-models/posenet';
 
 export interface PoseData {
   keypoints: Keypoint[];
@@ -27,4 +27,8 @@ export interface Part {
   label: string;
   x: number;
   y: number;
+}
+
+export interface KeypointDistanceMap {
+  [index: string]: boolean;
 }
