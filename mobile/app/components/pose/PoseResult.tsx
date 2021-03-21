@@ -1,13 +1,13 @@
-import React from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
-import { getAdjacentKeyPoints, getInputTensorDimensions } from "@tensorflow-models/posenet/dist/util";
+import React from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import { getAdjacentKeyPoints, getInputTensorDimensions } from '@tensorflow-models/posenet/dist/util';
 
-import KeyPoint from "./KeyPoint";
-import Lines from "./Lines";
-import { regulateUserPosePosition, regulateImagePosePosition } from "../../helpers/regulatePosition";
+import KeyPoint from './KeyPoint';
+import Lines from './Lines';
+import { regulateUserPosePosition, regulateImagePosePosition } from '../../helpers/regulatePosition';
 
-import { Keypoint, Vector2D } from "@tensorflow-models/posenet/dist/types";
-import { Dimensions2D, PoseData } from "../../types";
+import { Keypoint, Vector2D } from '@tensorflow-models/posenet/dist/types';
+import { Dimensions2D, PoseData } from '../../types';
 
 const CONTROL_SPACE_HEIGHT = 120;
 const MIN_CONFIDENCE = 0.5;
@@ -32,13 +32,13 @@ const MIN_CONFIDENCE = 0.5;
 interface PoseResultProps {
   poseData: PoseData;
   color: string;
-  target: "image" | "user";
+  target: 'image' | 'user';
 }
 
 const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
   const deviceDimensions: Dimensions2D = {
-    width: Dimensions.get("screen").width,
-    height: Dimensions.get("screen").height,
+    width: Dimensions.get('screen').width,
+    height: Dimensions.get('screen').height,
   };
 
   const imageDimensions: Dimensions2D = {
@@ -46,7 +46,7 @@ const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
     height: poseData.height,
   };
 
-  const regulate = target === "image" ? regulateImagePosePosition : regulateUserPosePosition;
+  const regulate = target === 'image' ? regulateImagePosePosition : regulateUserPosePosition;
 
   const regulatedKeyPoints: Keypoint[] = poseData.keypoints.map(({ position, part, score }) => {
     return {
@@ -61,7 +61,7 @@ const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
       {regulatedKeyPoints.map((point) => (
         <KeyPoint position={point.position} key={point.part} color={color} />
       ))}
-      {target === "user" && (
+      {target === 'user' && (
         <Lines pointPairs={getAdjacentKeyPoints(regulatedKeyPoints, MIN_CONFIDENCE)} color={color} />
       )}
     </View>
@@ -70,9 +70,9 @@ const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     zIndex: 5,
     // opacity: 0.5,
     // backgroundColor: "red",

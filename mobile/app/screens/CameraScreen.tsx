@@ -160,8 +160,8 @@ function CameraScreen() {
       keypoints,
     });
 
-    setMode("bounding");
-    // setMode("pose");
+    // setMode("bounding");
+    setMode("pose");
     setPredictedImages(null);
   };
 
@@ -170,9 +170,7 @@ function CameraScreen() {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === "bounding" && userBox.length !== 0 && (
-            <BoxResult position={userBox} color={colors.primary} imageDimensions={{}}/>
-          )}
+          {mode === "bounding" && userBox && <BoxResult position={userBox} color={colors.primary} />}
           {mode === "bounding" && (
             <BoxResult
               position={similarImageBox}

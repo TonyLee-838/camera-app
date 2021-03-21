@@ -1,6 +1,6 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import colors from "../../config/colors";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import colors from '../../config/colors';
 
 function ControlSpace({ children }) {
   return <View style={styles.container}>{children}</View>;
@@ -8,10 +8,10 @@ function ControlSpace({ children }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: "18%",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: '18%',
   },
 });
 

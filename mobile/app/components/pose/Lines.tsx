@@ -1,7 +1,7 @@
-import React from "react";
-import { View } from "react-native";
-import SVG, { Line } from "react-native-svg";
-import { Keypoint } from "@tensorflow-models/posenet";
+import React from 'react';
+import { View } from 'react-native';
+import SVG, { Line } from 'react-native-svg';
+import { Keypoint } from '@tensorflow-models/posenet';
 
 interface LinesProps {
   pointPairs: Keypoint[][];
@@ -11,7 +11,7 @@ interface LinesProps {
 const Lines = ({ pointPairs, color }: LinesProps) => {
   return (
     <View>
-      <SVG width="100%" height="100%">
+      <SVG width='100%' height='100%'>
         {pointPairs.map(([point1, point2], i) => (
           <Line
             key={`line-${i}`}
