@@ -145,7 +145,7 @@ function CameraScreen(props) {
 
     detectBoundingBox()
     // onSelectImage()
-    //setMode('bounding')
+    setMode('bounding')
   };
 
   const onRetake = () => {
@@ -187,7 +187,7 @@ function CameraScreen(props) {
         <View style={styles.container}>
           <GLCamera ref={glCamera} style={styles.camera} />
           {mode === "bounding" && userBox.length !== 0 && (
-            <BoxResult position={userBox} color={colors.primary} />
+            <BoxResult position={userBox} color={colors.primary} imageDimensions={{}} />
           )}
           {mode === "bounding" && similarImageBox.length!==0&&(
             <BoxResult

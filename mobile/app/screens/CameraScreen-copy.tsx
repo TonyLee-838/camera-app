@@ -169,7 +169,7 @@ function CameraScreen() {
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
           {mode === "bounding" && userBox.length !== 0 && (
-            <BoxResult position={userBox} color={colors.primary} />
+            <BoxResult position={userBox} color={colors.primary} imageDimensions={{}}/>
           )}
           {mode === "bounding" && (
             <BoxResult
