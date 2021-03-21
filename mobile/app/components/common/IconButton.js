@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import colors from '../../config/colors'
+import colors from '../../config/colors';
 
-function IconButton({name, size=35, onPress, text}) {
+function IconButton({ name, size = 35, onPress, text }) {
   return (
     <View style={styles.container}>
       <MaterialCommunityIcons
@@ -22,12 +22,12 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems:'center'
+    alignItems: 'center',
   },
-  text:{
+  text: {
     color: colors.black,
-    fontSize: 20
-  }
+    fontSize: 20,
+  },
 });
 
 export default IconButton;
