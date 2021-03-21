@@ -8,13 +8,19 @@ import colors from '../../config/colors';
 interface KeyPointProps {
   position: Vector2D;
   color: string;
+  radius?: number;
+  transparent?: boolean;
 }
 
-const KeyPoint = ({ position, color }: KeyPointProps) => {
+const KeyPoint = ({ position, color, radius = 5, transparent = false }: KeyPointProps) => {
   const style = {
     top: position.y,
     left: position.x,
     backgroundColor: color,
+    width: radius,
+    height: radius,
+    borderRadius: radius / 2,
+    opacity: transparent ? 0.5 : 1,
   };
 
   return <View style={{ ...styles.point, ...style }}></View>;
@@ -23,9 +29,7 @@ const KeyPoint = ({ position, color }: KeyPointProps) => {
 const styles = StyleSheet.create({
   point: {
     // backgroundColor: colors.primary,
-    width: 5,
-    height: 5,
-    borderRadius: 3,
+
     position: 'absolute',
     transform: [{ translateX: -3.5 }, { translateY: -3.5 }],
   },

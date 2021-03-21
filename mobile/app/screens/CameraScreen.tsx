@@ -22,6 +22,7 @@ import colors from '../config/colors';
 
 import { Tensor3D } from '@tensorflow/tfjs';
 import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
+import Pose from '../components/pose/Pose';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -47,7 +48,6 @@ function CameraScreen() {
   const [cocoModel, setCocoModel] = useState<CocoModel>(null!);
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const [poseData, setPoseData] = useState<PoseData>(null);
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
   //mode: "photo" | "bounding" | "pose"
@@ -56,14 +56,18 @@ function CameraScreen() {
   const [userBox, setUserBox] = useState<BoxPosition>([]);
   const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
   const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
+
+  const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
+
+  const [cameraTensor, setCameraTensor] = useState<tf.Tensor3D>();
 
   useEffect(() => {
     if (mode === 'photo') return;
 
     setInterval(async () => {
       if (mode === 'bounding') await detectBoundingBox();
-      if (mode === 'pose') await detectPoseKeyPoints();
+      // if (mode === 'pose') await detectPoseKeyPoints();
     }, 500);
   }, [mode]);
 
@@ -75,19 +79,19 @@ function CameraScreen() {
     imageTensor.dispose();
   });
 
-  const detectPoseKeyPoints = async () => {
-    try {
-      // if (!poseModel) return;
+  // const detectPoseKeyPoints = async () => {
+  //   try {
+  //     // if (!poseModel) return;
 
-      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-      const result = await poseModel.analysePose(imageTensor);
-      setPoseData(result);
+  //     const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
+  //     const result = await poseModel.analysePose(imageTensor);
+  //     setPoseData(result);
 
-      imageTensor.dispose();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //     imageTensor.dispose();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const searchForSimilarImages = async () => {
     try {
@@ -109,11 +113,11 @@ function CameraScreen() {
   });
 
   const onCapture = async () => {
-    console.warn('tt');
+    // console.warn('tt');
     setMode('pose');
-    setInterval(async () => {
-      await detectPoseKeyPoints();
-    }, 300);
+    // setInterval(async () => {
+    //   // await detectPoseKeyPoints();
+    // }, 300);
   };
 
   const onSave = () => {
@@ -167,25 +171,45 @@ function CameraScreen() {
     setPredictedImages(null);
   };
 
+  const getCameraImageTensor = () => {
+    return tf.tidy(() => {
+      return glCamera.current.getRealTimeImage();
+    });
+  };
+
+  const refreshUserPose = async () => {
+    const tensor = getCameraImageTensor();
+    const pose = await poseModel.analysePose(tensor);
+    setUserPose(pose);
+
+    tensor.dispose();
+  };
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === 'bounding' && userBox && <BoxResult position={userBox} color={colors.primary} />}
+          {/* {mode === 'bounding' && userBox && <BoxResult position={userBox} color={colors.primary} />}
           {mode === 'bounding' && (
             <BoxResult
               position={similarImageBox}
               imageDimensions={similarImageDimensions}
               color={colors.secondary}
             />
+          )} */}
+          {mode === 'pose' && (
+            <Pose
+              userPose={userPose}
+              imagePose={similarImagePose}
+              onNextFrame={refreshUserPose}
+              onFulfill={() => {}}
+            />
           )}
-
-          {mode === 'pose' && poseData && (
+          {/* {mode === 'pose' && poseData && (
             <PoseResult poseData={poseData} color={colors.primary} target='user' />
           )}
-          {/* {mode === "pose" && (
-            <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
+          {mode === 'pose' && (
+            <PoseResult poseData={similarImagePose} color={colors.secondary} target='image' />
           )} */}
           {predictedImages && (
             <ImageScrollRoll

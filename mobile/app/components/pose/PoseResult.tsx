@@ -35,6 +35,8 @@ interface PoseResultProps {
   target: 'image' | 'user';
 }
 
+const THRESHOLD = 10;
+
 const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
   const deviceDimensions: Dimensions2D = {
     width: Dimensions.get('screen').width,
@@ -56,10 +58,18 @@ const PoseResult = ({ poseData, color, target }: PoseResultProps) => {
     };
   });
 
+  const pointRadius = target === 'image' && THRESHOLD;
+
   return (
     <View style={styles.container}>
       {regulatedKeyPoints.map((point) => (
-        <KeyPoint position={point.position} key={point.part} color={color} />
+        <KeyPoint
+          position={point.position}
+          key={point.part}
+          color={color}
+          transparent={target === 'image'}
+          radius={pointRadius}
+        />
       ))}
       {target === 'user' && (
         <Lines pointPairs={getAdjacentKeyPoints(regulatedKeyPoints, MIN_CONFIDENCE)} color={color} />
