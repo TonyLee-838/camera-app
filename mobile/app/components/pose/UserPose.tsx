@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { getAdjacentKeyPoints } from '../../tools/posenet';
+import { getAdjacentKeyPoints } from '../../models/posenet';
 import KeyPoint from './KeyPoint';
 import Lines from './Lines';
 import colors from '../../config/colors';

@@ -4,22 +4,15 @@ import * as tf from '@tensorflow/tfjs';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from 'expo-image-picker';
 
-import GLCamera from '../components/camera/GLCamera';
-import CameraControlSpace from '../components/camera/CameraControlSpace';
-import ImageScrollRoll from '../components/camera/ImageScrollRoll';
-import CameraPreview from '../components/preview/CameraPreview';
-import PreviewControlSpace from '../components/preview/PreviewControlSpace';
-
-import PredictModel from '../tools/PredictModel';
-import PoseModel from '../tools/PoseModel';
-import CocoModel from '../tools/CocoModel';
-
+import Pose from '../components/pose/Pose';
+import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera';
+import { CameraPreview, PreviewControlSpace } from '../components/preview';
+import { PredictModel, PoseModel, CocoModel } from '../models';
 import { getPredictImages, getImagePose } from '../api/http';
 import tryCatch from '../helpers/error-handler';
 
 import { Tensor3D } from '@tensorflow/tfjs';
 import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
-import Pose from '../components/pose/Pose';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
