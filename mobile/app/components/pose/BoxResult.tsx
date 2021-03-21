@@ -19,9 +19,12 @@ const BoxResult = ({ position, color, imageDimensions }: BoxResultProps) => {
     height: Dimensions.get('screen').height,
   };
   const target: 'image' | 'user' = imageDimensions.width ? 'image' : 'user';
-
-  imageDimensions.width = imageDimensions.width || COCO_INPUT_WIDTH;
-  imageDimensions.height = imageDimensions.height || COCO_INPUT_HEIGHT;
+  if (!imageDimensions) {
+    imageDimensions = {
+      width: COCO_INPUT_WIDTH,
+      height: COCO_INPUT_HEIGHT,
+    };
+  }
 
   const regulate = target === 'image' ? regulateImageBoxPosition : regulateUserBoxPosition;
 

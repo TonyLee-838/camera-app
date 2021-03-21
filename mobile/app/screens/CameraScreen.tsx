@@ -1,27 +1,27 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Image } from "react-native";
-import * as tf from "@tensorflow/tfjs";
-import * as MediaLibrary from "expo-media-library";
-import * as ImagePicker from "expo-image-picker";
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Image } from 'react-native';
+import * as tf from '@tensorflow/tfjs';
+import * as MediaLibrary from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
 
-import GLCamera from "../components/camera/GLCamera";
-import CameraControlSpace from "../components/camera/CameraControlSpace";
-import CameraPreview from "../components/preview/CameraPreview";
-import PreviewControlSpace from "../components/preview/PreviewControlSpace";
-import ImageScrollRoll from "../components/camera/ImageScrollRoll";
+import GLCamera from '../components/camera/GLCamera';
+import CameraControlSpace from '../components/camera/CameraControlSpace';
+import CameraPreview from '../components/preview/CameraPreview';
+import PreviewControlSpace from '../components/preview/PreviewControlSpace';
+import ImageScrollRoll from '../components/camera/ImageScrollRoll';
 
-import PredictModel from "../tools/PredictModel";
-import PoseModel from "../tools/PoseModel";
-import CocoModel from "../tools/CocoModel";
+import PredictModel from '../tools/PredictModel';
+import PoseModel from '../tools/PoseModel';
+import CocoModel from '../tools/CocoModel';
 
-import { getPredictImages, getImagePose } from "../api/http";
-import tryCatch from "../helpers/error-handler";
-import BoxResult from "../components/pose/BoxResult";
-import PoseResult from "../components/pose/PoseResult";
-import colors from "../config/colors";
+import { getPredictImages, getImagePose } from '../api/http';
+import tryCatch from '../helpers/error-handler';
+import BoxResult from '../components/pose/BoxResult';
+import PoseResult from '../components/pose/PoseResult';
+import colors from '../config/colors';
 
-import { Tensor3D } from "@tensorflow/tfjs";
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from "../types";
+import { Tensor3D } from '@tensorflow/tfjs';
+import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -33,7 +33,7 @@ function CameraScreen() {
   const init = async () => {
     try {
       await tf.ready();
-      console.warn("tf - ready");
+      console.warn('tf - ready');
       setPredictModel(new PredictModel());
       setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
@@ -51,19 +51,19 @@ function CameraScreen() {
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
   //mode: "photo" | "bounding" | "pose"
-  const [mode, setMode] = useState<DetectMode>("photo");
+  const [mode, setMode] = useState<DetectMode>('photo');
 
-  const [userBox, setUserBox] = useState<BoxPosition>(null!);
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([]);
+  const [userBox, setUserBox] = useState<BoxPosition>([]);
+  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
   const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
   useEffect(() => {
-    if (mode === "photo") return;
+    if (mode === 'photo') return;
 
     setInterval(async () => {
-      if (mode === "bounding") await detectBoundingBox();
-      if (mode === "pose") await detectPoseKeyPoints();
+      if (mode === 'bounding') await detectBoundingBox();
+      if (mode === 'pose') await detectPoseKeyPoints();
     }, 500);
   }, [mode]);
 
@@ -77,7 +77,7 @@ function CameraScreen() {
 
   const detectPoseKeyPoints = async () => {
     try {
-      if (!poseModel) return;
+      // if (!poseModel) return;
 
       const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
       const result = await poseModel.analysePose(imageTensor);
@@ -109,6 +109,8 @@ function CameraScreen() {
   });
 
   const onCapture = async () => {
+    console.warn('tt');
+    setMode('pose');
     setInterval(async () => {
       await detectPoseKeyPoints();
     }, 300);
@@ -161,7 +163,7 @@ function CameraScreen() {
     });
 
     // setMode("bounding");
-    setMode("pose");
+    setMode('pose');
     setPredictedImages(null);
   };
 
@@ -170,8 +172,8 @@ function CameraScreen() {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === "bounding" && userBox && <BoxResult position={userBox} color={colors.primary} />}
-          {mode === "bounding" && (
+          {mode === 'bounding' && userBox && <BoxResult position={userBox} color={colors.primary} />}
+          {mode === 'bounding' && (
             <BoxResult
               position={similarImageBox}
               imageDimensions={similarImageDimensions}
@@ -179,12 +181,12 @@ function CameraScreen() {
             />
           )}
 
-          {mode === "pose" && poseData && (
-            <PoseResult poseData={poseData} color={colors.primary} target="user" />
+          {mode === 'pose' && poseData && (
+            <PoseResult poseData={poseData} color={colors.primary} target='user' />
           )}
-          {mode === "pose" && (
+          {/* {mode === "pose" && (
             <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
-          )}
+          )} */}
           {predictedImages && (
             <ImageScrollRoll
               images={predictedImages}
@@ -212,12 +214,12 @@ function CameraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
-    position: "relative",
+    flexDirection: 'column',
+    position: 'relative',
   },
   imageScrollRoll: {
-    position: "absolute",
-    bottom: "17%",
+    position: 'absolute',
+    bottom: '17%',
   },
 });
 
