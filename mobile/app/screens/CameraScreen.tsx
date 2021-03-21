@@ -21,7 +21,15 @@ import PoseResult from "../components/pose/PoseResult";
 import colors from "../config/colors";
 
 import { Tensor3D } from "@tensorflow/tfjs";
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from "../types";
+import {
+  DetectMode,
+  Dimensions2D,
+  PoseData,
+  PoseResponse,
+  PredictedImage,
+  BoxPosition,
+} from "../types";
+import BoundingBox from "../components/pose/BoundingBox";
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -34,8 +42,8 @@ function CameraScreen() {
     try {
       await tf.ready();
       console.warn("tf - ready");
-      setPredictModel(new PredictModel());
-      setPoseModel(new PoseModel());
+      // setPredictModel(new PredictModel());
+      // setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
     } catch (error) {
       console.error(error);
@@ -48,124 +56,40 @@ function CameraScreen() {
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [poseData, setPoseData] = useState<PoseData>(null);
-  const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
+  const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(
+    null
+  );
 
   //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>("photo");
-
-  const [userBox, setUserBox] = useState<BoxPosition>([]);
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
-  const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
-  const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
-
-  useEffect(() => {
-    if (mode === "photo") return;
-
-    setInterval(async () => {
-      if (mode === "bounding") await detectBoundingBox();
-      if (mode === "pose") await detectPoseKeyPoints();
-    }, 500);
-  }, [mode]);
-
-  const detectBoundingBox = tryCatch(async () => {
-    const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-    const result = await cocoModel.getBoundingBox(imageTensor);
-    setUserBox(result[0].bbox);
-
-    imageTensor.dispose();
+  const [cameraTensor, setCameraTensor] = useState<tf.Tensor3D>(null!);
+  const [similarImage, setSimilarImage] = useState({
+    width: 1000,
+    height: 1000,
+    x1: 300,
+    y1: 300,
+    x2: 600,
+    y2: 600,
   });
 
-  const detectPoseKeyPoints = async () => {
-    try {
-      // if (!poseModel) return;
+  const onCapture =  () => {
+    console.warn('1111')
 
-      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-      const result = await poseModel.analysePose(imageTensor);
-      setPoseData(result);
 
-      imageTensor.dispose();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const result = glCamera.current.getRealTimeImage()
+    setCameraTensor(result)
 
-  const searchForSimilarImages = async () => {
-    try {
-      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-      const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
-      const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
-      setPredictedImages(result);
+    // setMode('bounding')
 
-      imageTensor.dispose();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const preview = tryCatch(async () => {
-    const image = await glCamera.current.captureImage();
-    setPreviewImage(image);
-    setIsPreview(true);
-  });
-
-  const onCapture = async () => {
-    console.warn('tt')
-    setMode('pose')
-    setInterval(async () => {
-      await detectPoseKeyPoints();
-    }, 300);
+    
     
   };
 
-  const onSave = () => {
-    MediaLibrary.saveToLibraryAsync(previewImage.uri);
-    // alert("保存成功");
+  const onOpenImageFolder = () => {
+    console.warn("o");
   };
-
-  const onPredict = async () => {
-    await searchForSimilarImages();
-    // await detectBoundingBox();
-    // await detectPoseKeyPoints();
-  };
-
-  const onOpenImageFolder = async () => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-  };
-
-  const onRetake = () => {
-    setPreviewImage(null);
-    setIsPreview(false);
-  };
-
-  const onSelectImage = async (e, imageName) => {
-    const { image, parts }: PoseResponse = await getImagePose({ imageName });
-
-    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
-    setSimilarImageDimensions({ width: image.width, height: image.height });
-
-    const keypoints = parts.map((part) => ({
-      position: {
-        x: part.x,
-        y: part.y,
-      },
-      part: part.label,
-      score: 1,
-    }));
-
-    setSimilarImagePose({
-      width: image.width,
-      height: image.height,
-      keypoints,
-    });
-
-    setMode("bounding");
-    // setMode("pose");
-    setPredictedImages(null);
+  const onPredict = () => {
+    console.warn("p");
   };
 
   return (
@@ -173,41 +97,19 @@ function CameraScreen() {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === "bounding" && userBox && (
-            <BoxResult position={userBox} color={colors.primary}/>
-          )}
-          {mode === "bounding" && (
-            <BoxResult
-              position={similarImageBox}
-              imageDimensions={similarImageDimensions}
-              color={colors.secondary}
-            />
-          )}
 
-          {mode === "pose" && poseData && (
-            <PoseResult poseData={poseData} color={colors.primary} target="user" />
-          )}
-          {/* {mode === "pose" && (
-            <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
-          )} */}
-          {predictedImages && (
-            <ImageScrollRoll
-              images={predictedImages}
-              style={styles.imageScrollRoll}
-              onSelectImage={onSelectImage}
-            />
-          )}
           <CameraControlSpace
             onCapture={onCapture}
             onOpenImageFolder={onOpenImageFolder}
             onPredict={onPredict}
           />
-        </View>
-      )}
-      {isPreview && (
-        <View style={styles.container}>
-          <CameraPreview image={previewImage} />
-          <PreviewControlSpace onSave={onSave} onRetake={onRetake} />
+
+          {mode === "bounding" && cocoModel && cameraTensor &&(
+            <BoundingBox
+              userTensor={cameraTensor}
+              similarImage={similarImage}
+            />
+          )}
         </View>
       )}
     </View>

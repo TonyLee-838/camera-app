@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet, useWindowDimensions } from "react-native";
 import SVG, { Rect } from "react-native-svg";
 import { Dimensions2D, BoxPosition } from "../../types";
 import {
@@ -7,36 +7,28 @@ import {
   regulateUserBoxPosition,
 } from "../../helpers/regulatePosition";
 
-const COCO_INPUT_WIDTH = 750;
-const COCO_INPUT_HEIGHT = 1500;
 
 interface BoxResultProps {
   position: BoxPosition;
   color: string;
-  imageDimensions?: Dimensions2D;
+  dimensions: Dimensions2D;
+  target: 'user' | 'image';
 }
 
-const BoxResult = ({ position, color, imageDimensions }: BoxResultProps) => {
-  const deviceDimensions: Dimensions2D = {
-    width: Dimensions.get("screen").width,
-    height: Dimensions.get("screen").height,
-  };
-  const target: "image" | "user" = imageDimensions.width ? "image" : "user"
-  if(!imageDimensions){
-    imageDimensions = {
-      width: COCO_INPUT_WIDTH,
-      height: COCO_INPUT_HEIGHT
-    }
-  }
+const BoxResult = ({ position, color, dimensions, target }: BoxResultProps) => {
+  const deviceDimensions: Dimensions2D = useWindowDimensions()
 
   const regulate =
     target === "image" ? regulateImageBoxPosition : regulateUserBoxPosition;
 
   const { x, y, width, height } = regulate(
     position,
-    imageDimensions,
+    dimensions,
     deviceDimensions
   );
+  if(target==='image'){
+    console.warn('x,y,w,h:',`${x},${y},${width},${height}`)
+  }
 
   return (
     <View style={styles.container}>
