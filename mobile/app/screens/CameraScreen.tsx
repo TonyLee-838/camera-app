@@ -4,25 +4,15 @@ import * as tf from '@tensorflow/tfjs';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from 'expo-image-picker';
 
-import GLCamera from '../components/camera/GLCamera';
-import CameraControlSpace from '../components/camera/CameraControlSpace';
-import CameraPreview from '../components/preview/CameraPreview';
-import PreviewControlSpace from '../components/preview/PreviewControlSpace';
-import ImageScrollRoll from '../components/camera/ImageScrollRoll';
-
-import PredictModel from '../tools/PredictModel';
-import PoseModel from '../tools/PoseModel';
-import CocoModel from '../tools/CocoModel';
-
+import Pose from '../components/pose/Pose';
+import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera';
+import { CameraPreview, PreviewControlSpace } from '../components/preview';
+import { PredictModel, PoseModel, CocoModel } from '../models';
 import { getPredictImages, getImagePose } from '../api/http';
 import tryCatch from '../helpers/error-handler';
-import BoxResult from '../components/pose/BoxResult';
-import PoseResult from '../components/pose/PoseResult';
-import colors from '../config/colors';
 
 import { Tensor3D } from '@tensorflow/tfjs';
 import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
-import Pose from '../components/pose/Pose';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -59,8 +49,6 @@ function CameraScreen() {
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
-
-  const [cameraTensor, setCameraTensor] = useState<tf.Tensor3D>();
 
   useEffect(() => {
     if (mode === 'photo') return;
@@ -167,6 +155,7 @@ function CameraScreen() {
     });
 
     // setMode("bounding");
+    await refreshUserPose();
     setMode('pose');
     setPredictedImages(null);
   };
