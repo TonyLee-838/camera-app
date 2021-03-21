@@ -53,8 +53,8 @@ function CameraScreen() {
   //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>("photo");
 
-  const [userBox, setUserBox] = useState<BoxPosition>(null!);
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([]);
+  const [userBox, setUserBox] = useState<BoxPosition>([]);
+  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
   const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
@@ -77,7 +77,7 @@ function CameraScreen() {
 
   const detectPoseKeyPoints = async () => {
     try {
-      if (!poseModel) return;
+      // if (!poseModel) return;
 
       const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
       const result = await poseModel.analysePose(imageTensor);
@@ -109,9 +109,12 @@ function CameraScreen() {
   });
 
   const onCapture = async () => {
+    console.warn('tt')
+    setMode('pose')
     setInterval(async () => {
       await detectPoseKeyPoints();
     }, 300);
+    
   };
 
   const onSave = () => {
@@ -170,8 +173,8 @@ function CameraScreen() {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === "bounding" && userBox.length !== 0 && (
-            <BoxResult position={userBox} color={colors.primary} imageDimensions={{}}/>
+          {mode === "bounding" && userBox && (
+            <BoxResult position={userBox} color={colors.primary}/>
           )}
           {mode === "bounding" && (
             <BoxResult
@@ -184,9 +187,9 @@ function CameraScreen() {
           {mode === "pose" && poseData && (
             <PoseResult poseData={poseData} color={colors.primary} target="user" />
           )}
-          {mode === "pose" && (
+          {/* {mode === "pose" && (
             <PoseResult poseData={similarImagePose} color={colors.secondary} target="image" />
-          )}
+          )} */}
           {predictedImages && (
             <ImageScrollRoll
               images={predictedImages}
