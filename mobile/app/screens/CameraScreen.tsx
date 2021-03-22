@@ -21,8 +21,10 @@ import PoseResult from '../components/pose/PoseResult';
 import colors from '../config/colors';
 
 import { Tensor3D } from '@tensorflow/tfjs';
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
+import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition,SimilarImage } from '../types';
 import Pose from '../components/pose/Pose';
+import BoundingBox from '../components/pose/BoundingBox'
+import { regulateBoxFromCocoModel } from '../helpers/boxTools'
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -35,8 +37,8 @@ function CameraScreen() {
     try {
       await tf.ready();
       console.warn('tf - ready');
-      setPredictModel(new PredictModel());
-      setPoseModel(new PoseModel());
+      // setPredictModel(new PredictModel());
+      // setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
     } catch (error) {
       console.error(error);
@@ -54,27 +56,28 @@ function CameraScreen() {
   const [mode, setMode] = useState<DetectMode>('photo');
 
   const [userBox, setUserBox] = useState<BoxPosition>([]);
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
-  const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
+  const [similarImage, setSimilarImage] = useState<SimilarImage>(null!)
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  const [cameraTensor, setCameraTensor] = useState<tf.Tensor3D>();
+ 
 
-  useEffect(() => {
-    if (mode === 'photo') return;
+  // useEffect(() => {
+  //   if (mode === 'photo') return;
 
-    setInterval(async () => {
-      if (mode === 'bounding') await detectBoundingBox();
-      // if (mode === 'pose') await detectPoseKeyPoints();
-    }, 500);
-  }, [mode]);
+  //   setInterval(async () => {
+  //     if (mode === 'bounding') await detectBoundingBox();
+  //     // if (mode === 'pose') await detectPoseKeyPoints();
+  //   }, 500);
+  // }, [mode]);
 
   const detectBoundingBox = tryCatch(async () => {
     const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
-    setUserBox(result[0].bbox);
+    const box = regulateBoxFromCocoModel(result)
+    console.warn(box)
+    setUserBox(box);
 
     imageTensor.dispose();
   });
@@ -93,82 +96,42 @@ function CameraScreen() {
   //   }
   // };
 
-  const searchForSimilarImages = async () => {
-    try {
-      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-      const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
-      const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
-      setPredictedImages(result);
+ 
 
-      imageTensor.dispose();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const preview = tryCatch(async () => {
-    const image = await glCamera.current.captureImage();
-    setPreviewImage(image);
-    setIsPreview(true);
-  });
+    // setMode('bounding')
 
   const onCapture = async () => {
-    // console.warn('tt');
-    setMode('pose');
-    // setInterval(async () => {
-    //   // await detectPoseKeyPoints();
-    // }, 300);
+    await onSelectImage()
+    await refreshUserBox()
+    setMode('bounding')
   };
 
-  const onSave = () => {
-    MediaLibrary.saveToLibraryAsync(previewImage.uri);
-    // alert("保存成功");
+  const onOpenImageFolder = () => {
+    setMode('photo')
   };
 
-  const onPredict = async () => {
-    await searchForSimilarImages();
-    // await detectBoundingBox();
-    // await detectPoseKeyPoints();
-  };
+  const onSelectImage = async () => {
+    //const { image, parts }: PoseResponse = await getImagePose({ imageName:'1' });
+    setSimilarImage({width:500,height:1200,x1:100,y1:300,x2:200,y2:666})
 
-  const onOpenImageFolder = async () => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-  };
+    // const keypoints = parts.map((part) => ({
+    //   position: {
+    //     x: part.x,
+    //     y: part.y,
+    //   },
+    //   part: part.label,
+    //   score: 1,
+    // }));
 
-  const onRetake = () => {
-    setPreviewImage(null);
-    setIsPreview(false);
-  };
+    // setSimilarImagePose({
+    //   width: image.width,
+    //   height: image.height,
+    //   keypoints,
+    // });
 
-  const onSelectImage = async (e, imageName) => {
-    const { image, parts }: PoseResponse = await getImagePose({ imageName });
-
-    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
-    setSimilarImageDimensions({ width: image.width, height: image.height });
-
-    const keypoints = parts.map((part) => ({
-      position: {
-        x: part.x,
-        y: part.y,
-      },
-      part: part.label,
-      score: 1,
-    }));
-
-    setSimilarImagePose({
-      width: image.width,
-      height: image.height,
-      keypoints,
-    });
-
-    // setMode("bounding");
-    setMode('pose');
-    setPredictedImages(null);
+    // // setMode("bounding");
+    // setMode('pose');
+    // setPredictedImages(null);
   };
 
   const getCameraImageTensor = () => {
@@ -184,33 +147,33 @@ function CameraScreen() {
 
     tensor.dispose();
   };
+
+  const refreshUserBox = async()=>{
+    const tensor = getCameraImageTensor();
+    const result = await cocoModel.getBoundingBox(tensor);
+    const box = regulateBoxFromCocoModel(result)
+    setUserBox(box);
+    
+    
+    tensor.dispose();
+  }
+
+  const onPredict = ()=>{
+    refreshUserBox()
+  }
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {/* {mode === 'bounding' && userBox && <BoxResult position={userBox} color={colors.primary} />}
-          {mode === 'bounding' && (
-            <BoxResult
-              position={similarImageBox}
-              imageDimensions={similarImageDimensions}
-              color={colors.secondary}
-            />
-          )} */}
           {mode === 'pose' && (
             <Pose
               userPose={userPose}
               imagePose={similarImagePose}
               onNextFrame={refreshUserPose}
-              onFulfill={() => {}}
+              onFulfill={()=>{}}
             />
           )}
-          {/* {mode === 'pose' && poseData && (
-            <PoseResult poseData={poseData} color={colors.primary} target='user' />
-          )}
-          {mode === 'pose' && (
-            <PoseResult poseData={similarImagePose} color={colors.secondary} target='image' />
-          )} */}
           {predictedImages && (
             <ImageScrollRoll
               images={predictedImages}
@@ -223,12 +186,15 @@ function CameraScreen() {
             onOpenImageFolder={onOpenImageFolder}
             onPredict={onPredict}
           />
-        </View>
-      )}
-      {isPreview && (
-        <View style={styles.container}>
-          <CameraPreview image={previewImage} />
-          <PreviewControlSpace onSave={onSave} onRetake={onRetake} />
+
+          {mode === "bounding" && cocoModel &&(
+            <BoundingBox
+              userBox={userBox}
+              similarImage={similarImage}
+              onNextFrame={refreshUserBox}
+              onFulfill={(s) => {console.warn(s);}}
+            />
+          )}
         </View>
       )}
     </View>
