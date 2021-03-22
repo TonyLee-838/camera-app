@@ -4,7 +4,7 @@ import {
   BoxPosition,
   userState,
 } from "../types/index";
-import { DetectedObject } from "../tools/coco-ssd/index";
+import { DetectedObject } from "../models/coco-ssd/index";
 import { getDistanceOfTwoPoints } from "../helpers/getDistances";
 
 // 将{x,y,width,height} 转化为包含四个顶点的数组： [ {x,y},{x,y},{x,y},{x,y} ]

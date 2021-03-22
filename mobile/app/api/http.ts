@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
 
-const BASE_URL = "http://10.139.77.247:3003";
+const BASE_URL = 'http://10.138.247.130:3003';
 
 const http = axios.create({
   baseURL: BASE_URL,
@@ -9,8 +9,8 @@ const http = axios.create({
 // data: {features: [...]}
 export const getPredictImages = async (params) => {
   const { data } = await http({
-    method: "post",
-    url: "/predict",
+    method: 'post',
+    url: '/predict',
     data: params,
   });
   return data;
@@ -19,8 +19,8 @@ export const getPredictImages = async (params) => {
 // params: {imageName: ''}
 export const getImagePose = async (params) => {
   const { data } = await http({
-    method: "get",
-    url: "/pose",
+    method: 'get',
+    url: '/pose',
     params,
   });
 
