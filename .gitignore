@@ -4,4 +4,6 @@ mobile/.vscode/
 mobile/node_modules/
 server/node_modules/
 server/public/images/
+server/data/__init__.py
+server/.env
 */.DS_Store

@@ -1,18 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from 'expo-image-picker';
 
 import Pose from '../components/pose/Pose';
-import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera';
+import BoundingBox from '../components/pose/BoundingBox';
+import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
 import { PredictModel, PoseModel, CocoModel } from '../models';
 import { getPredictImages, getImagePose } from '../api/http';
 import tryCatch from '../helpers/error-handler';
+import { regulateBoxFromCocoModel } from '../helpers/boxTools';
 
 import { Tensor3D } from '@tensorflow/tfjs';
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition } from '../types';
+import {
+  DetectMode,
+  Dimensions2D,
+  PoseData,
+  PoseResponse,
+  PredictedImage,
+  BoxPosition,
+  SimilarImage,
+} from '../types';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
@@ -44,25 +54,17 @@ function CameraScreen() {
   const [mode, setMode] = useState<DetectMode>('photo');
 
   const [userBox, setUserBox] = useState<BoxPosition>([]);
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>(null!);
-  const [similarImageDimensions, setSimilarImageDimensions] = useState<Dimensions2D>(null);
+  const [similarImage, setSimilarImage] = useState<SimilarImage>(null!);
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  useEffect(() => {
-    if (mode === 'photo') return;
-
-    setInterval(async () => {
-      if (mode === 'bounding') await detectBoundingBox();
-      // if (mode === 'pose') await detectPoseKeyPoints();
-    }, 500);
-  }, [mode]);
-
   const detectBoundingBox = tryCatch(async () => {
     const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
     const result = await cocoModel.getBoundingBox(imageTensor);
-    setUserBox(result[0].bbox);
+    const box = regulateBoxFromCocoModel(result);
+    console.warn(box);
+    setUserBox(box);
 
     imageTensor.dispose();
   });
@@ -87,43 +89,18 @@ function CameraScreen() {
   });
 
   const onCapture = async () => {
-    // console.warn('tt');
-    setMode('pose');
-    // setInterval(async () => {
-    //   // await detectPoseKeyPoints();
-    // }, 300);
+    await onSelectImage();
+    await refreshUserBox();
+    setMode('bounding');
   };
 
-  const onSave = () => {
-    MediaLibrary.saveToLibraryAsync(previewImage.uri);
-    // alert("保存成功");
+  const onOpenImageFolder = () => {
+    setMode('photo');
   };
 
-  const onPredict = async () => {
-    await searchForSimilarImages();
-    // await detectBoundingBox();
-    // await detectPoseKeyPoints();
-  };
-
-  const onOpenImageFolder = async () => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-  };
-
-  const onRetake = () => {
-    setPreviewImage(null);
-    setIsPreview(false);
-  };
-
-  const onSelectImage = async (e, imageName) => {
-    const { image, parts }: PoseResponse = await getImagePose({ imageName });
-
-    setSimilarImageBox([image.x1, image.y1, image.x2 - image.x1, image.y2 - image.y1]);
-    setSimilarImageDimensions({ width: image.width, height: image.height });
+  const onSelectImage = async () => {
+    const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
+    setSimilarImage(image);
 
     const keypoints = parts.map((part) => ({
       position: {
@@ -140,7 +117,6 @@ function CameraScreen() {
       keypoints,
     });
 
-    // setMode("bounding");
     await refreshUserPose();
     setMode('pose');
     setPredictedImages(null);
@@ -159,19 +135,24 @@ function CameraScreen() {
 
     tensor.dispose();
   };
+
+  const refreshUserBox = async () => {
+    const tensor = getCameraImageTensor();
+    const result = await cocoModel.getBoundingBox(tensor);
+    const box = regulateBoxFromCocoModel(result);
+    setUserBox(box);
+
+    tensor.dispose();
+  };
+
+  const onPredict = () => {
+    refreshUserBox();
+  };
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {/* {mode === 'bounding' && userBox && <BoxResult position={userBox} color={colors.primary} />}
-          {mode === 'bounding' && (
-            <BoxResult
-              position={similarImageBox}
-              imageDimensions={similarImageDimensions}
-              color={colors.secondary}
-            />
-          )} */}
           {mode === 'pose' && (
             <Pose
               userPose={userPose}
@@ -182,12 +163,6 @@ function CameraScreen() {
               }}
             />
           )}
-          {/* {mode === 'pose' && poseData && (
-            <PoseResult poseData={poseData} color={colors.primary} target='user' />
-          )}
-          {mode === 'pose' && (
-            <PoseResult poseData={similarImagePose} color={colors.secondary} target='image' />
-          )} */}
           {predictedImages && (
             <ImageScrollRoll
               images={predictedImages}
@@ -200,12 +175,17 @@ function CameraScreen() {
             onOpenImageFolder={onOpenImageFolder}
             onPredict={onPredict}
           />
-        </View>
-      )}
-      {isPreview && (
-        <View style={styles.container}>
-          <CameraPreview image={previewImage} />
-          <PreviewControlSpace onSave={onSave} onRetake={onRetake} />
+
+          {mode === 'bounding' && cocoModel && (
+            <BoundingBox
+              userBox={userBox}
+              similarImage={similarImage}
+              onNextFrame={refreshUserBox}
+              onFulfill={(s) => {
+                console.warn(s);
+              }}
+            />
+          )}
         </View>
       )}
     </View>

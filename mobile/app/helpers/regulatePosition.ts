@@ -99,12 +99,17 @@ export const regulateUserBoxPosition = (
   const y = position[1];
   const width = position[2];
   const height = position[3];
+
   return {
-    x: ((imageDimensions.width - x) * deviceDimensions.width) / imageDimensions.width,
+    //x: ((imageDimensions.width - x) * deviceDimensions.width) / imageDimensions.width ,
+    x:
+      ((imageDimensions.width - x) * deviceDimensions.width) / imageDimensions.width -
+      (width * deviceDimensions.width) / imageDimensions.width,
     y:
       (deviceDimensions.height - CONTROL_SPACE_HEIGHT) / 2 -
       ((0.5 * imageDimensions.height - y) * deviceDimensions.width) / imageDimensions.width,
-    width: (-1 * width * deviceDimensions.width) / imageDimensions.width,
+    width: (width * deviceDimensions.width) / imageDimensions.width,
+    //width: (-1*width * deviceDimensions.width) / imageDimensions.width,
     height: (height * deviceDimensions.height) / imageDimensions.height,
   };
 };
