@@ -59,21 +59,24 @@ function CameraScreen() {
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  const detectBoundingBox = tryCatch(async () => {
-    const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-    const result = await cocoModel.getBoundingBox(imageTensor);
-    const box = regulateBoxFromCocoModel(result);
-    console.warn(box);
-    setUserBox(box);
+  // const detectBoundingBox = tryCatch(async () => {
+  //   const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
+  //   const result = await cocoModel.getBoundingBox(imageTensor);
+  //   const box = regulateBoxFromCocoModel(result);
+  //   console.warn(box);
+  //   setUserBox(box);
 
-    imageTensor.dispose();
-  });
+  //   imageTensor.dispose();
+  // });
 
   const searchForSimilarImages = async () => {
     try {
       const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
+
       const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
+
       const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
+
       setPredictedImages(result);
 
       imageTensor.dispose();
@@ -145,14 +148,25 @@ function CameraScreen() {
     tensor.dispose();
   };
 
-  const onPredict = () => {
-    refreshUserBox();
+  const onPredict = async () => {
+    await searchForSimilarImages();
+    // await refreshUserBox();
   };
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
+          {mode === 'bounding' && cocoModel && (
+            <BoundingBox
+              userBox={userBox}
+              similarImage={similarImage}
+              onNextFrame={refreshUserBox}
+              onFulfill={(s) => {
+                console.warn(s);
+              }}
+            />
+          )}
           {mode === 'pose' && (
             <Pose
               userPose={userPose}
@@ -175,17 +189,6 @@ function CameraScreen() {
             onOpenImageFolder={onOpenImageFolder}
             onPredict={onPredict}
           />
-
-          {mode === 'bounding' && cocoModel && (
-            <BoundingBox
-              userBox={userBox}
-              similarImage={similarImage}
-              onNextFrame={refreshUserBox}
-              onFulfill={(s) => {
-                console.warn(s);
-              }}
-            />
-          )}
         </View>
       )}
     </View>

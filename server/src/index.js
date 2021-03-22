@@ -7,11 +7,7 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors());
-app.use(
-  morgan('tiny', {
-    skip: (req) => !req.url.match(/\/dev-log/),
-  })
-);
+app.use(morgan('tiny'));
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
 

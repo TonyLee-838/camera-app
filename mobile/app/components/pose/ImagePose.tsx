@@ -23,7 +23,6 @@ const ImagePose = ({ keypoints, distanceMap, fulfillThreshold }: ImagePoseProps)
           key={`image-${point.part}`}
           color={fulfilled ? colors.success : colors.purple}
           transparent
-          label={point.part}
         />
       );
     });

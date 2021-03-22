@@ -10,10 +10,9 @@ interface KeyPointProps {
   color: string;
   radius?: number;
   transparent?: boolean;
-  label: string;
 }
 
-const KeyPoint = ({ position, color, radius = 2.5, transparent = false, label }: KeyPointProps) => {
+const KeyPoint = ({ position, color, radius = 2.5, transparent = false }: KeyPointProps) => {
   const style = {
     top: position.y,
     left: position.x,
@@ -25,11 +24,7 @@ const KeyPoint = ({ position, color, radius = 2.5, transparent = false, label }:
     transform: [{ translateX: -1 * radius }, { translateY: -1 * radius }],
   };
 
-  return (
-    <View style={{ ...styles.point, ...style }}>
-      <Text style={styles.label}>{label}</Text>
-    </View>
-  );
+  return <View style={{ ...styles.point, ...style }}></View>;
 };
 
 const styles = StyleSheet.create({
