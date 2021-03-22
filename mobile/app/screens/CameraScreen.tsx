@@ -24,7 +24,7 @@ function CameraScreen() {
   const init = async () => {
     try {
       await tf.ready();
-      console.warn('tf - ready');
+      console.log('tf - ready');
       setPredictModel(new PredictModel());
       setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
@@ -66,20 +66,6 @@ function CameraScreen() {
 
     imageTensor.dispose();
   });
-
-  // const detectPoseKeyPoints = async () => {
-  //   try {
-  //     // if (!poseModel) return;
-
-  //     const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-  //     const result = await poseModel.analysePose(imageTensor);
-  //     setPoseData(result);
-
-  //     imageTensor.dispose();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const searchForSimilarImages = async () => {
     try {
@@ -191,7 +177,9 @@ function CameraScreen() {
               userPose={userPose}
               imagePose={similarImagePose}
               onNextFrame={refreshUserPose}
-              onFulfill={() => {}}
+              onFulfill={() => {
+                console.log('MATCHED!!!');
+              }}
             />
           )}
           {/* {mode === 'pose' && poseData && (

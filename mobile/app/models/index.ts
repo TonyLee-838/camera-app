@@ -1,5 +1,5 @@
-import CocoModel from './CocoModel';
-import PoseModel from './PoseModel';
-import PredictModel from './PredictModel';
+export * from './CocoModel';
+export * from './PoseModel';
+export * from './PredictModel';
 
-export { CocoModel, PoseModel, PredictModel };
+// export { CocoModel, PoseModel, PredictModel };

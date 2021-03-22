@@ -17,7 +17,12 @@ const UserPose = ({ keypoints }: UserPoseProps) => {
   return (
     <View style={styles.container}>
       {keypoints.map((point) => (
-        <KeyPoint position={point.position} key={`user-${point.part}`} color={colors.secondary} />
+        <KeyPoint
+          position={point.position}
+          key={`user-${point.part}`}
+          color={colors.secondary}
+          label={point.part}
+        />
       ))}
       <Lines pointPairs={getAdjacentKeyPoints(keypoints, MIN_CONFIDENCE)} color={colors.secondary} />
     </View>

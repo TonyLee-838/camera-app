@@ -1,4 +1,4 @@
-import { Keypoint } from '../tools/posenet';
+import { Keypoint } from '../models/posenet';
 import { Dimensions2D, BoxPosition, PoseData } from '../types';
 
 const CONTROL_SPACE_HEIGHT_PERCENTAGE = 0.18;
@@ -26,14 +26,16 @@ const regulateImagePosePosition = (
 ) => {
   const ratio = deviceDimensions.width / imageDimensions.width;
 
-  const imageHeight = imageDimensions.height * ratio;
-  const cameraHeight = (1 - CONTROL_SPACE_HEIGHT_PERCENTAGE) * deviceDimensions.height;
-  const offset = (cameraHeight - imageHeight) / 2;
-  const _y = y * ratio;
+  // const imageHeight = imageDimensions.height * ratio;
+  // const cameraHeight = (1 - CONTROL_SPACE_HEIGHT_PERCENTAGE) * deviceDimensions.height;
+  // const offset = (cameraHeight - imageHeight) / 2;
+
+  // const _y = y * ratio;
 
   return {
     x: x * ratio,
-    y: 0.5 * cameraHeight - (0.5 * imageHeight - _y) - offset,
+    // y: 0.5 * cameraHeight - (0.5 * imageHeight - _y) - offset,
+    y: y * ratio,
   };
 };
 
@@ -46,7 +48,7 @@ export const getRegulatedUserKeypoints = (
   return poseData.keypoints.map(({ position, part, score }) => {
     return {
       position: regulateUserPosePosition(position.x, position.y, inputDimensions, deviceDimensions),
-      part,
+      part: switchLabel(part),
       score,
     };
   });
@@ -59,12 +61,16 @@ const regulateUserPosePosition = (
   deviceDimensions: Dimensions2D
 ) => {
   return {
-    x: (x * deviceDimensions.width) / inputDimensions.width,
+    x: ((inputDimensions.width - x) * deviceDimensions.width) / inputDimensions.width,
     y:
       (0.5 * deviceDimensions.height -
         ((0.5 * inputDimensions.height - y) * deviceDimensions.width) / inputDimensions.width) *
       (1 - CONTROL_SPACE_HEIGHT_PERCENTAGE),
   };
+};
+
+export const regulateCameraValue = (value: number, deviceWidth: number) => {
+  return (value * deviceWidth) / 750;
 };
 
 export const regulateImageBoxPosition = (
@@ -101,4 +107,11 @@ export const regulateUserBoxPosition = (
     width: (-1 * width * deviceDimensions.width) / imageDimensions.width,
     height: (height * deviceDimensions.height) / imageDimensions.height,
   };
+};
+
+const switchLabel = (label: string) => {
+  const symbol = label.match(/left|right/);
+  if (!symbol) return label;
+
+  return label.replace(symbol[0], symbol[0] === 'left' ? 'right' : 'left');
 };

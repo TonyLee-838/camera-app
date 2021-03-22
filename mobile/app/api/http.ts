@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://10.138.247.130:3003';
+const BASE_URL = 'http://10.114.201.16:3003';
 
-const http = axios.create({
+export const http = axios.create({
   baseURL: BASE_URL,
 });
 

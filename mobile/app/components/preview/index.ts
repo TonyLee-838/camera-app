@@ -1,5 +1,7 @@
-import CameraPreview from './CameraPreview';
-import FilterScrollRoll from './FilterScrollRoll';
-import PreviewControlSpace from './PreviewControlSpace';
+import _CameraPreview from './CameraPreview';
+import _FilterScrollRoll from './FilterScrollRoll';
+import _PreviewControlSpace from './PreviewControlSpace';
 
-export { CameraPreview, FilterScrollRoll, PreviewControlSpace };
+export const CameraPreview = _CameraPreview;
+export const FilterScrollRoll = _FilterScrollRoll;
+export const PreviewControlSpace = _PreviewControlSpace;
