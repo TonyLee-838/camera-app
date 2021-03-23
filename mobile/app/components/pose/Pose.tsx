@@ -7,7 +7,7 @@ import { getRegulatedImageKeypoints, getRegulatedUserKeypoints } from '../../hel
 import UserPose from './UserPose';
 import ImagePose from './ImagePose';
 import { Keypoint } from '../../models/posenet';
-import Lines from './Lines';
+import Lines from './UserLines';
 import colors from '../../config/colors';
 import DistanceLines from './DistanceLines';
 
@@ -18,7 +18,7 @@ interface PoseProps {
   onNextFrame: () => Promise<void>;
 }
 
-const FULFILL_THRESHOLD = 22;
+const FULFILL_THRESHOLD = 25;
 const REFRESH_TIME = 150;
 
 const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     width: '100%',
-    height: '100%',
+    height: '83%',
+    overflow: 'hidden',
   },
 });
 export default Pose;

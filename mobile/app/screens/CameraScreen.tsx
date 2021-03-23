@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
-import * as MediaLibrary from 'expo-media-library';
-import * as ImagePicker from 'expo-image-picker';
 
 import Pose from '../components/pose/Pose';
 import BoundingBox from '../components/pose/BoundingBox';
@@ -23,34 +21,32 @@ import {
   BoxPosition,
   SimilarImage,
 } from '../types';
+import { useModels } from '../hooks/useModels';
 
 function CameraScreen() {
   let glCamera = useRef(null!);
 
-  useEffect(() => {
-    init();
-  }, []);
+  // useEffect(() => {
+  //   init();
+  // }, []);
 
-  const init = async () => {
-    try {
-      await tf.ready();
-      console.log('tf - ready');
-      setPredictModel(new PredictModel());
-      setPoseModel(new PoseModel());
-      setCocoModel(new CocoModel());
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const init = async () => {
+  //   try {
+  //     await tf.ready();
+  //     console.log('tf - ready');
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-  const [predictModel, setPredictModel] = useState<PredictModel>(null!);
-  const [poseModel, setPoseModel] = useState<PoseModel>(null!);
-  const [cocoModel, setCocoModel] = useState<CocoModel>(null!);
+  // const { predictModel, cocoModel, poseModel } = useModels();
+
+  const { cocoModel, poseModel, predictModel } = useModels();
+
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
-  //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>('photo');
 
   const [userBox, setUserBox] = useState<BoxPosition>([]);
@@ -58,16 +54,6 @@ function CameraScreen() {
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
-
-  // const detectBoundingBox = tryCatch(async () => {
-  //   const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-  //   const result = await cocoModel.getBoundingBox(imageTensor);
-  //   const box = regulateBoxFromCocoModel(result);
-  //   console.warn(box);
-  //   setUserBox(box);
-
-  //   imageTensor.dispose();
-  // });
 
   const searchForSimilarImages = async () => {
     try {
@@ -208,4 +194,3 @@ const styles = StyleSheet.create({
 });
 
 export default CameraScreen;
-//<CameraControlSpace onCapture={onCapture} style={styles.space} />
