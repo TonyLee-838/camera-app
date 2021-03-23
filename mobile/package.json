@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.14.1",
+    "@react-native-community/art": "^1.2.0",
     "@react-native-community/async-storage": "~1.12.0",
     "@tensorflow-models/coco-ssd": "^2.2.1",
     "@tensorflow-models/mobilenet": "^2.1.0",
@@ -32,9 +33,10 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
     "react-native-camera": "^3.43.0",
+    "react-native-fade-in-out": "^1.0.5",
     "react-native-fs": "^2.16.6",
-    "react-native-step-indicator": "^1.0.3",
     "react-native-progress": "^4.1.2",
+    "react-native-step-indicator": "^1.0.3",
     "react-native-svg": "12.1.0",
     "react-native-unimodules": "^0.12.0",
     "react-native-web": "~0.13.12"

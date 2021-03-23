@@ -9,11 +9,11 @@ import BoundingBox from '../components/pose/BoundingBox';
 import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
 import { getPredictImages, getImagePose } from '../api/http';
-import { regulateBoxFromCocoModel } from '../helpers/boxTools'
-import Tip  from '../components/common/Tip'
+import { regulateBoxFromCocoModel } from '../helpers/boxTools';
+import Tip from '../components/common/Tip';
 import Step from '../components/common/Step';
 
-import {  Tensor3D } from '@tensorflow/tfjs';
+import { Tensor3D } from '@tensorflow/tfjs';
 import {
   DetectMode,
   PoseData,
@@ -35,7 +35,7 @@ function CameraScreen({ models }) {
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
   const [mode, setMode] = useState<DetectMode>('photo');
-  const [step, setStep] = useState<StepTypes|null>(null)
+  const [step, setStep] = useState<StepTypes | null>(null);
 
   const [userBox, setUserBox] = useState<BoxPosition>(null!);
   const [similarImage, setSimilarImage] = useState<SimilarImage>(null!);
@@ -43,7 +43,7 @@ function CameraScreen({ models }) {
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  const [tipText, setTipText] = useState<string|null>(null)
+  const [tipText, setTipText] = useState<string>('');
 
   const searchForSimilarImages = async () => {
     try {
@@ -62,20 +62,21 @@ function CameraScreen({ models }) {
   };
 
   const onCapture = async () => {
-    setStep(null)
-    const image = await glCamera.current.captureImage()
-    setIsPreview(true)
-    setPreviewImage(image)
+    setStep(null);
+    setTipText('');
+    const image = await glCamera.current.captureImage();
+    setIsPreview(true);
+    setPreviewImage(image);
   };
 
   const onOpenImageFolder = () => {
-    ImagePicker.launchImageLibraryAsync()
+    ImagePicker.launchImageLibraryAsync();
   };
 
   const onSelectImage = async (e, imageName) => {
     setPredictedImages(null);
 
-    const { image, parts }: PoseResponse = await getImagePose({imageName});
+    const { image, parts }: PoseResponse = await getImagePose({ imageName });
     setSimilarImage(image);
 
     const keypoints = parts.map((part) => ({
@@ -93,27 +94,33 @@ function CameraScreen({ models }) {
       keypoints,
     });
 
-    await refreshUserBox()
+    await refreshUserBox();
     setMode('bounding');
-    setStep('adjustDistance')
-
+    setStep('adjustDistance');
   };
 
-  const handleBoxFulfilled = async()=>{
+  const handleBoxFulfilled = async () => {
     await refreshUserPose();
-    setMode('pose')
-    setStep('adjustPose')
-    setUserBox(null)
-    setSimilarImage(null)
-  }
 
-  const handlePoseFulfilled = ()=>{
-    setMode('photo')
-    setStep('goodToGo')
-    setUserPose(null)
-    setSimilarImagePose(null)
-    setTipText('完美！可以拍照了')
-  }
+    setTipText('完美!');
+    setTimeout(() => {
+      setTipText('');
+    }, 1500);
+
+    setMode('pose');
+    setStep('adjustPose');
+    setUserBox(null);
+    setSimilarImage(null);
+  };
+
+  const handlePoseFulfilled = () => {
+    setMode('photo');
+    setStep('goodToGo');
+    setUserPose(null);
+    setSimilarImagePose(null);
+
+    setTipText('完美！可以拍照了');
+  };
 
   const getCameraImageTensor = () => {
     return tf.tidy(() => {
@@ -140,25 +147,24 @@ function CameraScreen({ models }) {
 
   const onPredict = async () => {
     await searchForSimilarImages();
-    setStep('selectImage')
-  }
+    setStep('selectImage');
+  };
 
-  const onRetake = ()=>{
-    setIsPreview(false)
-    setPreviewImage(null)
-    setMode('photo')
-  }
+  const onRetake = () => {
+    setIsPreview(false);
+    setPreviewImage(null);
+    setMode('photo');
+  };
 
-  const onSave = ()=>{
-    MediaLibrary.saveToLibraryAsync(previewImage.uri)
-    setTipText('保存成功!')
-    setTimeout(()=>{setTipText(null)},1500)
-  }
+  const onSave = () => {
+    MediaLibrary.saveToLibraryAsync(previewImage.uri);
+    setTipText('保存成功!');
+  };
 
   return (
     <View style={{ flex: 1 }}>
-      {step && <Step currentStep={step}/>}
-      {tipText && <Tip text={tipText}/>}
+      {step && <Step currentStep={step} />}
+      <Tip text={tipText} />
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
@@ -170,7 +176,7 @@ function CameraScreen({ models }) {
               onFulfill={handleBoxFulfilled}
             />
           )}
-          {mode === 'pose' && userPose && similarImagePose &&(
+          {mode === 'pose' && userPose && similarImagePose && (
             <Pose
               userPose={userPose}
               imagePose={similarImagePose}
@@ -192,19 +198,12 @@ function CameraScreen({ models }) {
           />
         </View>
       )}
-      {
-        isPreview && (
-          <View style={styles.container}>
-            <CameraPreview
-              image={previewImage}
-            />
-            <PreviewControlSpace
-              onRetake={onRetake}
-              onSave={onSave}
-            />
-          </View>
-        )
-      }
+      {isPreview && (
+        <View style={styles.container}>
+          <CameraPreview image={previewImage} />
+          <PreviewControlSpace onRetake={onRetake} onSave={onSave} />
+        </View>
+      )}
     </View>
   );
 }

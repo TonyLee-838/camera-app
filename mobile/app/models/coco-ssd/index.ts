@@ -15,15 +15,15 @@
  * =============================================================================
  */
 
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs';
 
-import { CLASSES } from "./classes";
+import { CLASSES } from './classes';
 
-const BASE_PATH = "https://storage.googleapis.com/tfjs-models/savedmodel/";
+const BASE_PATH = 'https://storage.googleapis.com/tfjs-models/savedmodel/';
 
-export { version } from "./version";
+export { version } from './version';
 
-export type ObjectDetectionBaseModel = "mobilenet_v1" | "mobilenet_v2" | "lite_mobilenet_v2";
+export type ObjectDetectionBaseModel = 'mobilenet_v1' | 'mobilenet_v2' | 'lite_mobilenet_v2';
 
 export interface DetectedObject {
   bbox: [number, number, number, number]; // [x, y, width, height]
@@ -54,9 +54,9 @@ export async function load(handler: tf.io.IOHandler, config: ModelConfig = {}) {
         `also include @tensorflow/tfjs on the page before using this model.`
     );
   }
-  const base = config.base || "lite_mobilenet_v2";
+  const base = config.base || 'lite_mobilenet_v2';
   const modelUrl = config.modelUrl;
-  if (["mobilenet_v1", "mobilenet_v2", "lite_mobilenet_v2"].indexOf(base) === -1) {
+  if (['mobilenet_v1', 'mobilenet_v2', 'lite_mobilenet_v2'].indexOf(base) === -1) {
     throw new Error(
       `ObjectDetection constructed with invalid base model ` +
         `${base}. Valid names are 'mobilenet_v1',` +
@@ -78,13 +78,13 @@ export class ObjectDetection {
   }
 
   private getPrefix(base: ObjectDetectionBaseModel) {
-    return base === "lite_mobilenet_v2" ? `ssd${base}` : `ssd_${base}`;
+    return base === 'lite_mobilenet_v2' ? `ssd${base}` : `ssd_${base}`;
   }
 
   async load(handler: tf.io.IOHandler) {
     this.model = await tf.loadGraphModel(handler || this.modelPath);
 
-    const zeroTensor = tf.zeros([1, 300, 300, 3], "int32");
+    const zeroTensor = tf.zeros([1, 300, 300, 3], 'int32');
     // Warmup the model.
     const result = (await this.model.executeAsync(zeroTensor)) as tf.Tensor[];
     await Promise.all(result.map((t) => t.data()));
@@ -125,8 +125,8 @@ export class ObjectDetection {
     // and 4 is the four coordinates of the box.
     const result = (await this.model.executeAsync(batched)) as tf.Tensor[];
 
-    const scores = result[0].dataSync() as Float32Array;
-    const boxes = result[1].dataSync() as Float32Array;
+    const scores = (await result[0].data()) as Float32Array;
+    const boxes = (await result[1].data()) as Float32Array;
 
     // clean the webgl tensors
     batched.dispose();
@@ -136,15 +136,22 @@ export class ObjectDetection {
 
     const prevBackend = tf.getBackend();
     // run post process in cpu
-    if (tf.getBackend() === "webgl") {
-      tf.setBackend("cpu");
+    if (tf.getBackend() === 'webgl') {
+      tf.setBackend('cpu');
     }
-    const indexTensor = tf.tidy(() => {
-      const boxes2 = tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
-      return tf.image.nonMaxSuppression(boxes2, maxScores, maxNumBoxes, minScore, minScore);
-    });
+    // const indexTensor = tf.tidy(() => {
+    const boxes2 = tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
+    const indexTensor = await tf.image.nonMaxSuppressionAsync(
+      boxes2,
+      maxScores,
+      maxNumBoxes,
+      minScore,
+      minScore
+    );
+    // });
+    boxes2.dispose();
 
-    const indexes = indexTensor.dataSync() as Float32Array;
+    const indexes = (await indexTensor.data()) as Float32Array;
     indexTensor.dispose();
 
     // restore previous backend

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-
 import { Bar } from 'react-native-progress';
+
 import colors from '../config/colors';
 
 const TEXTS = [
@@ -20,7 +20,7 @@ const LoadingScreen = ({ progress, total }: LoadingScreenProps) => {
   return (
     <View style={styles.container}>
       <Bar progress={progress / total} />
-      <Text style={styles.text}>{TEXTS[progress]}</Text>
+      <Text style={styles.text}>{TEXTS[Math.ceil(progress)]}</Text>
     </View>
   );
 };

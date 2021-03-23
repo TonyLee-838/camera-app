@@ -1639,7 +1639,7 @@
   dependencies:
     deep-assign "^3.0.0"
 
-"@react-native-community/art@^1.1.2":
+"@react-native-community/art@^1.1.2", "@react-native-community/art@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/art/-/art-1.2.0.tgz#386d95393f6042d9006f9d4bc6063fb898794460"
   integrity sha512-a+ZcRGl/BzLa89yi33Mbn5SHavsEXqKUMdbfLf3U8MDLElndPqUetoJyGkv63+BcPO49UMWiQRP1YUz6/zfJ+A==
@@ -5741,6 +5741,11 @@ react-native-camera@^3.43.0:
   integrity sha512-I+04f5L+7Z6ZwUarw+79VePAB//VxidPVsv1Ec7+uuKv3rAkZ+8OBxtm1487OVrY6V3dMdl7BKByv4BIDUY1pQ==
   dependencies:
     prop-types "^15.6.2"
+
+react-native-fade-in-out@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-fade-in-out/-/react-native-fade-in-out-1.0.5.tgz#f1b2163b723b8b1ad442333405c4a25c6ce7f2a9"
+  integrity sha512-3yp1/zuAKk4kJiDTHpHIwbL93nzyEO/2OTqy2YsauYhj7GDJup+WvOM4tZGZCeqVFfoJBacu+eDmZ9SkcyO1gg==
 
 react-native-fs@^2.16.6:
   version "2.16.6"
