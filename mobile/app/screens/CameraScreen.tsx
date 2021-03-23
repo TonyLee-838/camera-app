@@ -137,14 +137,12 @@ function CameraScreen() {
         <View style={styles.container}>
           <Tip text={tipText} />
           <GLCamera ref={glCamera} />
-          {mode === 'bounding' && cocoModel && (
+          {mode === "bounding" && similarImage && userBox &&(
             <BoundingBox
               userBox={userBox}
               similarImage={similarImage}
               onNextFrame={refreshUserBox}
-              onFulfill={(s) => {
-                console.warn(s);
-              }}
+              onFulfill={(s) => onShowTip(s)}
             />
           )}
           {mode === 'pose' && (
@@ -169,15 +167,6 @@ function CameraScreen() {
             onOpenImageFolder={onOpenImageFolder}
             onPredict={onPredict}
           />
-
-          {mode === "bounding" && similarImage && userBox &&(
-            <BoundingBox
-              userBox={userBox}
-              similarImage={similarImage}
-              onNextFrame={refreshUserBox}
-              onFulfill={(s) => onShowTip(s)}
-            />
-          )}
         </View>
       )}
     </View>
