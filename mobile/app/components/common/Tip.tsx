@@ -13,8 +13,8 @@ enum SUGGESTION_MESSAGE {
 }
 
 interface TipProps {
-  text?: string;
-  forBox: boolean;
+  text: string;
+  forBox?: boolean;
 }
 
 function Tip({ text, forBox = false }: TipProps) {

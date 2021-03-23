@@ -6,8 +6,7 @@ import {
   Dimensions2D,
   BoxPosition,
   SimilarImage,
-  regulatedBox,
-  UserStatus,
+  RegulatedBox,
 } from "../../types";
 import colors from "../../config/colors";
 import {
@@ -21,8 +20,8 @@ import axios from "axios";
 const COCO_INPUT_WIDTH = 750;
 const COCO_INPUT_HEIGHT = 1500;
 
-let regulatedImagePosition: regulatedBox;
-let regulatedUserPosition: regulatedBox;
+let regulatedImagePosition: RegulatedBox;
+let regulatedUserPosition: RegulatedBox;
 
 interface BoundingBoxProps {
   userBox: BoxPosition;

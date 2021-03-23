@@ -1,10 +1,10 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import SVG, { Rect } from "react-native-svg";
-import { regulatedBox } from "../../types";
+import { RegulatedBox } from "../../types";
 
 interface BoxResultProps {
-  position: regulatedBox;
+  position: RegulatedBox;
   color: string;
 }
 

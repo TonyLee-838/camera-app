@@ -1,13 +1,13 @@
 export type BoxPosition = Array<number>
 
-export interface regulatedBox {
+export interface RegulatedBox {
   x: number;
   y: number;
   width: number;
   height: number;
 }
 
-export type boxPoints = {
+export type BoxPoints = {
     x: number;
     y: number;
 }[]

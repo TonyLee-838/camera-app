@@ -9,7 +9,6 @@ import BoundingBox from '../components/pose/BoundingBox';
 import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
 import { getPredictImages, getImagePose } from '../api/http';
-import tryCatch from '../helpers/error-handler';
 import { regulateBoxFromCocoModel } from '../helpers/boxTools'
 import Tip  from '../components/common/Tip'
 import Step from '../components/common/Step';
@@ -61,12 +60,6 @@ function CameraScreen() {
       console.error(error);
     }
   };
-
-  const preview = tryCatch(async () => {
-    const image = await glCamera.current.captureImage();
-    setPreviewImage(image);
-    setIsPreview(true);
-  });
 
   const onCapture = async () => {
     setStep(null)

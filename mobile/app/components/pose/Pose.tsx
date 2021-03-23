@@ -18,7 +18,7 @@ interface PoseProps {
   onNextFrame: () => Promise<void>;
 }
 
-const FULFILL_THRESHOLD = 100;
+const FULFILL_THRESHOLD = 60;
 const REFRESH_TIME = 150;
 let intervalId;
 

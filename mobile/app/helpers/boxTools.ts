@@ -1,6 +1,6 @@
 import {
-  regulatedBox,
-  boxPoints,
+  RegulatedBox,
+  BoxPoints,
   BoxPosition,
   UserStatus,
 } from "../types/index";
@@ -8,8 +8,8 @@ import { DetectedObject } from "../models/coco-ssd/index";
 import { getDistanceOfTwoPoints } from "../helpers/getDistances";
 
 // 将{x,y,width,height} 转化为包含2个顶点的数组： [ {x,y},{x,y} ]
-export const boxToPoints = (box: regulatedBox): boxPoints => {
-  const points: boxPoints = [
+export const boxToPoints = (box: RegulatedBox): BoxPoints => {
+  const points: BoxPoints = [
     { x: box.x, y: box.y },
     { x: box.x + box.width, y: box.y + box.height },
   ];
@@ -38,8 +38,8 @@ const VERTICAL_THRESHOLD = 20;
 const HORIZONTAL_THRESHOLD = 12;
 
 export const inferUserStatus = (
-  userBox: regulatedBox,
-  imageBox: regulatedBox,
+  userBox: RegulatedBox,
+  imageBox: RegulatedBox,
 ): UserStatus => {
   if (userBox.width === 0 && userBox.height === 0) return "none";
   const userPoints = boxToPoints(userBox);
@@ -50,8 +50,8 @@ export const inferUserStatus = (
 };
 
 const matchVertical = (
-  userPoints: boxPoints,
-  imagePoints: boxPoints
+  userPoints: BoxPoints,
+  imagePoints: BoxPoints
 ): UserStatus => {
   const userVertical = Math.abs(userPoints[0].y - userPoints[1].y);
   const imageVertical = Math.abs(imagePoints[0].y - imagePoints[1].y);
@@ -71,8 +71,8 @@ const matchVertical = (
 };
 
 const matchHorizontal = (
-  userPoints: boxPoints,
-  imagePoints: boxPoints
+  userPoints: BoxPoints,
+  imagePoints: BoxPoints
 ): UserStatus => {
   if (
     userPoints[0].x + HORIZONTAL_THRESHOLD < imagePoints[0].x &&
