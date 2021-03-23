@@ -1,26 +1,29 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { userState } from '../../types/index'
+
+enum SUGGESTION_MESSAGE {
+  tooFar = '请移近一点',
+  tooClose = '请移远一点',
+  tooRight = '请向左移动摄像头',
+  tooLeft = '请向右移动摄像头',
+  fine = '完美！',
+  none = '没有检测到人像',
+  tooHigh = '请向下移动摄像头',
+  tooLow = '请向上移动摄像头'
+}
+
 
 interface TipProps{
   text?: string;
 }
 
 
-const tipMap = {
-  'offset': '位置需要微调',
-  'far': '距离太远了',
-  'close': '距离太近啦',
-  'no-person': '没有检测到人',
-  'ok': '完美！'
-}
-
 function Tip({ text }: TipProps) {
   if(!text) return null;
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        {tipMap[text]}
+        {SUGGESTION_MESSAGE[text]}
       </Text>
     </View>
   );

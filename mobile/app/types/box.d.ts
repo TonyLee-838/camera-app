@@ -22,4 +22,13 @@ export interface SimilarImage {
 }
 
 
-export type userState = 'far' | 'close' | 'offset' | 'ok' | 'no-person'
+export type UserStatus = 'tooFar' | 'tooClose' | 'tooRight' | 'tooLeft' | 'fine' | 'none' | 'tooHigh' | 'tooLow'
+
+// export enum SUGGESTION_MESSAGE {
+//   far = '请移近一点',
+//   close = '请移远一点',
+//   right = '请向左移动',
+//   left = '请向右移动',
+//   fine = '完美',
+//   none = '没有检测到人像'
+// }

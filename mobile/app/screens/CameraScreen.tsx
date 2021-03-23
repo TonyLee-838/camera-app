@@ -78,24 +78,24 @@ function CameraScreen() {
     const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
     setSimilarImage(image);
 
-    const keypoints = parts.map((part) => ({
-      position: {
-        x: part.x,
-        y: part.y,
-      },
-      part: part.label,
-      score: 1,
-    }));
+    // const keypoints = parts.map((part) => ({
+    //   position: {
+    //     x: part.x,
+    //     y: part.y,
+    //   },
+    //   part: part.label,
+    //   score: 1,
+    // }));
 
-    setSimilarImagePose({
-      width: image.width,
-      height: image.height,
-      keypoints,
-    });
+    // setSimilarImagePose({
+    //   width: image.width,
+    //   height: image.height,
+    //   keypoints,
+    // });
 
-    await refreshUserPose();
-    setMode('pose');
-    setPredictedImages(null);
+    // await refreshUserPose();
+    // setMode('pose');
+    // setPredictedImages(null);
   };
 
   const getCameraImageTensor = () => {
@@ -142,7 +142,8 @@ function CameraScreen() {
               userBox={userBox}
               similarImage={similarImage}
               onNextFrame={refreshUserBox}
-              onFulfill={(s) => onShowTip(s)}
+              onStatusChange={(status) => onShowTip(status)}
+              onFulfill={()=>console.warn('okokokokoko')}
             />
           )}
           {mode === 'pose' && (

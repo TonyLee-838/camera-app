@@ -10,7 +10,6 @@ interface Models {
 }
 
 export const useModels = () => {
-  // const [models, setModels] = useState<Models>();
   const [predictModel, setPredictModel] = useState<PredictModel>();
   const [poseModel, setPoseModel] = useState<PoseModel>();
   const [cocoModel, setCocoModel] = useState<CocoModel>();

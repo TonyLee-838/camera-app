@@ -7,18 +7,18 @@ import {
   BoxPosition,
   SimilarImage,
   regulatedBox,
+  UserStatus
 } from "../../types";
 import colors from "../../config/colors";
 import {
   regulateImageBoxPosition,
   regulateUserBoxPosition,
 } from "../../helpers/regulatePosition";
-import { inferUserState } from '../../helpers/boxTools'
+import {  inferUserStatus } from '../../helpers/boxTools'
 import axios from "axios";
 
 const COCO_INPUT_WIDTH = 750;
 const COCO_INPUT_HEIGHT = 1500;
-const THRESHOLD = 35;
 
 let regulatedImagePosition: regulatedBox;
 let regulatedUserPosition: regulatedBox;
@@ -27,7 +27,8 @@ interface BoundingBoxProps {
   userBox: BoxPosition;
   similarImage: SimilarImage;
   onNextFrame: () => Promise<void>;
-  onFulfill: (x: string) => void;
+  onFulfill: () => void;
+  onStatusChange: (status: UserStatus)=>void;
 }
 
 function BoundingBox({
@@ -35,6 +36,7 @@ function BoundingBox({
   similarImage,
   onNextFrame,
   onFulfill,
+  onStatusChange
 }: BoundingBoxProps) {
   const deviceDimensions: Dimensions2D = useWindowDimensions();
 
@@ -70,18 +72,21 @@ function BoundingBox({
   );
 
 
-  const isFullfill = () => {
-    const result = inferUserState(regulatedUserPosition,regulatedImagePosition,THRESHOLD)
-    // axios.post('http://10.139.77.247:3003/debug',{result})
+  const getUserStatus = () => {
+    const result = inferUserStatus(regulatedUserPosition,regulatedImagePosition)
     return result
   };
 
   useEffect(() => {
     setInterval(async () => {
       await onNextFrame();
-      onFulfill(isFullfill())
-    }, 2000);
+      const status = getUserStatus()
+      onStatusChange(getUserStatus())
+      if(status==='fine') onFulfill()
+    }, 500);
   }, []);
+
+
 
   return (
     <View style={styles.container}>
