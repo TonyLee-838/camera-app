@@ -2,16 +2,16 @@ import * as tf from "@tensorflow/tfjs";
 import vector from "../data/eigenvectors.json";
 import { GraphModel } from '@tensorflow/tfjs'
 
-import { bundleResourceIO } from "@tensorflow/tfjs-react-native";
-const modelJSON = require("../assets/model/predict/model.json");
-const w1 = require("../assets/model/predict/group1-shard1of5.bin");
-const w2 = require("../assets/model/predict/group1-shard2of5.bin");
-const w3 = require("../assets/model/predict/group1-shard3of5.bin");
-const w4 = require("../assets/model/predict/group1-shard4of5.bin");
-const w5 = require("../assets/model/predict/group1-shard5of5.bin");
+import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
+const modelJSON = require('../assets/model/predict/model.json');
+const w1 = require('../assets/model/predict/group1-shard1of5.bin');
+const w2 = require('../assets/model/predict/group1-shard2of5.bin');
+const w3 = require('../assets/model/predict/group1-shard3of5.bin');
+const w4 = require('../assets/model/predict/group1-shard4of5.bin');
+const w5 = require('../assets/model/predict/group1-shard5of5.bin');
 
 
-class PredictModel{
+export class PredictModel{
   IMAGE_SIZE: number;
   inputMin: number;
   inputMax: number;
@@ -29,7 +29,7 @@ class PredictModel{
   init = async () => {
     await tf.ready();
     this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1, w2, w3, w4, w5]));
-    console.warn("load PredictModel success");
+    console.log('Predict Model Loaded!');
   };
 
   getImageCompressedTensorArray = (imageTensor) => {
@@ -51,7 +51,7 @@ class PredictModel{
   imagePreprocess = (decodedImage) => {
     return tf.tidy(() => {
       const normalized = tf.add(
-        tf.mul(tf.cast(decodedImage, "float32"), this.normalizationConstant),
+        tf.mul(tf.cast(decodedImage, 'float32'), this.normalizationConstant),
         this.inputMin
       );
       let resized = normalized;
@@ -68,7 +68,7 @@ class PredictModel{
     return tf.tidy(() => {
       const internal = model.execute(
         preprocessedImage,
-        "module_apply_default/MobilenetV1/Logits/global_pool"
+        'module_apply_default/MobilenetV1/Logits/global_pool'
       );
       const result = tf.squeeze(internal, [1, 2]);
       return result;
@@ -81,5 +81,3 @@ class PredictModel{
     });
   };
 }
-
-export default PredictModel;

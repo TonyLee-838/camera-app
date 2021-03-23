@@ -3,11 +3,11 @@ import { View, StyleSheet } from 'react-native';
 
 import { getAdjacentKeyPoints } from '../../models/posenet';
 import KeyPoint from './KeyPoint';
-import Lines from './Lines';
+import UserLines from './UserLines';
 import colors from '../../config/colors';
 import { Keypoint } from '../../types';
 
-const MIN_CONFIDENCE = 0.5;
+const MIN_CONFIDENCE = 0.2;
 
 interface UserPoseProps {
   keypoints: Keypoint[];
@@ -16,10 +16,13 @@ interface UserPoseProps {
 const UserPose = ({ keypoints }: UserPoseProps) => {
   return (
     <View style={styles.container}>
-      {keypoints.map((point) => (
-        <KeyPoint position={point.position} key={`user-${point.part}`} color={colors.secondary} />
-      ))}
-      <Lines pointPairs={getAdjacentKeyPoints(keypoints, MIN_CONFIDENCE)} color={colors.secondary} />
+      {keypoints.map(
+        (point) =>
+          point.score >= MIN_CONFIDENCE && (
+            <KeyPoint position={point.position} key={`user-${point.part}`} color={colors.secondary} />
+          )
+      )}
+      <UserLines pointPairs={getAdjacentKeyPoints(keypoints, MIN_CONFIDENCE)} color={colors.secondary} />
     </View>
   );
 };

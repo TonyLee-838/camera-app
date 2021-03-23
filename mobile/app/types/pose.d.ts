@@ -30,5 +30,13 @@ export interface Part {
 }
 
 export interface KeypointDistanceMap {
-  [index: string]: boolean;
+  [index: string]: {
+    fulfilled: boolean;
+    distance: number;
+  };
+}
+
+export interface Point {
+  x: number;
+  y: number;
 }

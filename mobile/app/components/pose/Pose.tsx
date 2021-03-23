@@ -6,48 +6,63 @@ import { getDistancesOfKeypoints } from '../../helpers/getDistances';
 import { getRegulatedImageKeypoints, getRegulatedUserKeypoints } from '../../helpers/regulatePosition';
 import UserPose from './UserPose';
 import ImagePose from './ImagePose';
+import { Keypoint } from '../../models/posenet';
+import Lines from './UserLines';
+import colors from '../../config/colors';
+import DistanceLines from './DistanceLines';
 
 interface PoseProps {
   imagePose: PoseData;
   userPose: PoseData;
   onFulfill: () => void;
-  onNextFrame: () => void;
+  onNextFrame: () => Promise<void>;
 }
 
-const FULFILL_THRESHOLD = 15;
-const REFRESH_TIME = 500;
+const FULFILL_THRESHOLD = 25;
+const REFRESH_TIME = 150;
 
 const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
-  const [isFulfilled, setIsFulfilled] = useState<boolean>(false);
-  const [distanceMap, setDistanceMap] = useState<KeypointDistanceMap>();
+  // const [isFulfilled, setIsFulfilled] = useState<boolean>(false);
 
   const deviceDimensions = useWindowDimensions();
 
   const userKeypoints = getRegulatedUserKeypoints(userPose, deviceDimensions);
   const imageKeypoints = getRegulatedImageKeypoints(imagePose, deviceDimensions);
+  const { map: distanceMap, allFulfilled } = getDistancesOfKeypoints(
+    imageKeypoints,
+    userKeypoints,
+    FULFILL_THRESHOLD
+  );
 
   useEffect(() => {
-    setInterval(() => {
-      onNextFrame();
-
-      const result = getDistancesOfKeypoints(imageKeypoints, userKeypoints, FULFILL_THRESHOLD);
-
-      setDistanceMap(result.map);
-      if (result.allFulfilled) {
-        setIsFulfilled(true);
-        onFulfill();
-      }
+    setInterval(async () => {
+      await onNextFrame();
     }, REFRESH_TIME);
   }, []);
 
+  useEffect(() => {
+    if (allFulfilled) {
+      onFulfill();
+    }
+  }, [allFulfilled]);
+
   return (
     <View style={styles.container}>
-      {userPose && <UserPose keypoints={userKeypoints} />}
-      <ImagePose
-        keypoints={imageKeypoints}
-        fulfillThreshold={FULFILL_THRESHOLD}
-        distanceMap={distanceMap}
-      />
+      {userKeypoints && <UserPose keypoints={userKeypoints} />}
+      {imageKeypoints && (
+        <ImagePose
+          keypoints={imageKeypoints}
+          fulfillThreshold={FULFILL_THRESHOLD}
+          distanceMap={distanceMap}
+        />
+      )}
+      {userKeypoints && imageKeypoints && (
+        <DistanceLines
+          userKeypoints={userKeypoints}
+          imageKeypoints={imageKeypoints}
+          distanceMap={distanceMap}
+        />
+      )}
     </View>
   );
 };
@@ -55,6 +70,9 @@ const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
+    width: '100%',
+    height: '83%',
+    overflow: 'hidden',
   },
 });
 export default Pose;

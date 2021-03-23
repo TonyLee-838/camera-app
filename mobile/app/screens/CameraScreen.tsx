@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
-import * as MediaLibrary from 'expo-media-library';
-import * as ImagePicker from 'expo-image-picker';
 
 import Pose from '../components/pose/Pose';
-import BoundingBox from '../components/pose/BoundingBox'
+import BoundingBox from '../components/pose/BoundingBox';
 import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
 import { PredictModel, PoseModel, CocoModel } from '../models';
@@ -15,36 +13,27 @@ import { regulateBoxFromCocoModel } from '../helpers/boxTools'
 import Tip  from '../components/common/Tip'
 
 import { Tensor3D } from '@tensorflow/tfjs';
-import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition, SimilarImage } from '../types';
+import {
+  DetectMode,
+  Dimensions2D,
+  PoseData,
+  PoseResponse,
+  PredictedImage,
+  BoxPosition,
+  SimilarImage,
+} from '../types';
+import { useModels } from '../hooks/useModels';
 
 function CameraScreen() {
-
+  
   let glCamera = useRef(null!);
 
-  useEffect(() => {
-    init();
-  }, []);
+  const {predictModel, poseModel, cocoModel} = useModels()
 
-  const init = async () => {
-    try {
-      await tf.ready();
-      console.warn('tf - ready');
-      // setPredictModel(new PredictModel());
-      // setPoseModel(new PoseModel());
-      setCocoModel(new CocoModel());
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const [predictModel, setPredictModel] = useState<PredictModel>(null!);
-  const [poseModel, setPoseModel] = useState<PoseModel>(null!);
-  const [cocoModel, setCocoModel] = useState<CocoModel>(null!);
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
-  //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>('photo');
 
   const [userBox, setUserBox] = useState<BoxPosition>(null!);
@@ -53,49 +42,60 @@ function CameraScreen() {
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
+  const searchForSimilarImages = async () => {
+    try {
+      const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
 
-  const detectBoundingBox = tryCatch(async () => {
-    const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
-    const result = await cocoModel.getBoundingBox(imageTensor);
-    const box = regulateBoxFromCocoModel(result)
-    console.warn(box)
-    setUserBox(box);
+      const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
 
-    imageTensor.dispose();
+      const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
+
+      setPredictedImages(result);
+
+      imageTensor.dispose();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const preview = tryCatch(async () => {
+    const image = await glCamera.current.captureImage();
+    setPreviewImage(image);
+    setIsPreview(true);
   });
 
   const onCapture = async () => {
-    await onSelectImage()
-    await refreshUserBox()
-    setMode('bounding')
+    await onSelectImage();
+    await refreshUserBox();
+    setMode('bounding');
   };
 
   const onOpenImageFolder = () => {
-    setMode('photo')
+    setMode('photo');
   };
 
   const onSelectImage = async () => {
     const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
-    setSimilarImage(image)
-    
-    // const keypoints = parts.map((part) => ({
-    //   position: {
-    //     x: part.x,
-    //     y: part.y,
-    //   },
-    //   part: part.label,
-    //   score: 1,
-    // }));
+    setSimilarImage(image);
 
-    // setSimilarImagePose({
-    //   width: image.width,
-    //   height: image.height,
-    //   keypoints,
-    // });
+    const keypoints = parts.map((part) => ({
+      position: {
+        x: part.x,
+        y: part.y,
+      },
+      part: part.label,
+      score: 1,
+    }));
 
-    // await refreshUserPose();
-    // setMode('pose');
-    // setPredictedImages(null);
+    setSimilarImagePose({
+      width: image.width,
+      height: image.height,
+      keypoints,
+    });
+
+    await refreshUserPose();
+    setMode('pose');
+    setPredictedImages(null);
   };
 
   const getCameraImageTensor = () => {
@@ -112,17 +112,17 @@ function CameraScreen() {
     tensor.dispose();
   };
 
-  const refreshUserBox = async()=>{
+  const refreshUserBox = async () => {
     const tensor = getCameraImageTensor();
     const result = await cocoModel.getBoundingBox(tensor);
-    const box = regulateBoxFromCocoModel(result)
+    const box = regulateBoxFromCocoModel(result);
     setUserBox(box);
     
     tensor.dispose();
-  }
+  };
 
-  const onPredict = ()=>{
-    refreshUserBox()
+  const onPredict = async()=>{
+    await searchForSimilarImages();
   }
 
   const [tipText,setTipText] = useState()
@@ -137,12 +137,24 @@ function CameraScreen() {
         <View style={styles.container}>
           <Tip text={tipText} />
           <GLCamera ref={glCamera} />
+          {mode === 'bounding' && cocoModel && (
+            <BoundingBox
+              userBox={userBox}
+              similarImage={similarImage}
+              onNextFrame={refreshUserBox}
+              onFulfill={(s) => {
+                console.warn(s);
+              }}
+            />
+          )}
           {mode === 'pose' && (
             <Pose
               userPose={userPose}
               imagePose={similarImagePose}
               onNextFrame={refreshUserPose}
-              onFulfill={()=>{}}
+              onFulfill={() => {
+                console.log('MATCHED!!!');
+              }}
             />
           )}
           {predictedImages && (
@@ -185,4 +197,3 @@ const styles = StyleSheet.create({
 });
 
 export default CameraScreen;
-//<CameraControlSpace onCapture={onCapture} style={styles.space} />

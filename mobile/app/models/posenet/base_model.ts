@@ -15,8 +15,8 @@
  * =============================================================================
  */
 
-import * as tf from "@tensorflow/tfjs";
-import { PoseNetOutputStride } from "./types";
+import * as tf from '@tensorflow/tfjs';
+import { PoseNetOutputStride } from './types';
 
 /**
  * PoseNet supports using various convolution neural network models
@@ -33,7 +33,6 @@ export abstract class BaseModel {
     public readonly outputStride: PoseNetOutputStride
   ) {
     const inputShape = this.model.inputs[0].shape as [number, number, number, number];
-    console.log("inputShape", inputShape);
     tf.util.assert(
       inputShape[1] === -1 && inputShape[2] === -1,
       () => `Input shape [${inputShape[1]}, ${inputShape[2]}] ` + `must both be equal to or -1`
@@ -64,7 +63,7 @@ export abstract class BaseModel {
     displacementBwd: tf.Tensor3D;
   } {
     return tf.tidy(() => {
-      const asFloat = this.preprocessInput(tf.cast(input, "float32"));
+      const asFloat = this.preprocessInput(tf.cast(input, 'float32'));
       const asBatch = tf.expandDims(asFloat, 0);
       const results = this.model.predict(asBatch) as tf.Tensor4D[];
       const results3d: tf.Tensor3D[] = results.map((y) => tf.squeeze(y, [0]));

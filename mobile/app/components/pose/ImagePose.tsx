@@ -14,7 +14,7 @@ interface ImagePoseProps {
 const ImagePose = ({ keypoints, distanceMap, fulfillThreshold }: ImagePoseProps) => {
   const mapKeypoints = () => {
     return keypoints.map((point) => {
-      const fulfilled = distanceMap[point.part];
+      const { fulfilled } = distanceMap[point.part];
 
       return (
         <KeyPoint
@@ -22,6 +22,7 @@ const ImagePose = ({ keypoints, distanceMap, fulfillThreshold }: ImagePoseProps)
           position={point.position}
           key={`image-${point.part}`}
           color={fulfilled ? colors.success : colors.purple}
+          transparent
         />
       );
     });

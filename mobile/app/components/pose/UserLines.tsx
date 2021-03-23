@@ -3,12 +3,12 @@ import { View } from 'react-native';
 import SVG, { Line } from 'react-native-svg';
 import { Keypoint } from '@tensorflow-models/posenet';
 
-interface LinesProps {
+interface UserLinesProps {
   pointPairs: Keypoint[][];
   color: string;
 }
 
-const Lines = ({ pointPairs, color }: LinesProps) => {
+const UserLines = ({ pointPairs, color }: UserLinesProps) => {
   return (
     <View>
       <SVG width='100%' height='100%'>
@@ -28,4 +28,4 @@ const Lines = ({ pointPairs, color }: LinesProps) => {
   );
 };
 
-export default Lines;
+export default UserLines;
