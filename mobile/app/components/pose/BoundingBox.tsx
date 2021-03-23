@@ -18,7 +18,7 @@ import axios from "axios";
 
 const COCO_INPUT_WIDTH = 750;
 const COCO_INPUT_HEIGHT = 1500;
-const THRESHOLD = 40;
+const THRESHOLD = 35;
 
 let regulatedImagePosition: regulatedBox;
 let regulatedUserPosition: regulatedBox;

@@ -1,5 +1,6 @@
 import * as tf from "@tensorflow/tfjs";
 import vector from "../data/eigenvectors.json";
+import { GraphModel } from '@tensorflow/tfjs'
 
 import { bundleResourceIO } from "@tensorflow/tfjs-react-native";
 const modelJSON = require("../assets/model/predict/model.json");
@@ -9,8 +10,15 @@ const w3 = require("../assets/model/predict/group1-shard3of5.bin");
 const w4 = require("../assets/model/predict/group1-shard4of5.bin");
 const w5 = require("../assets/model/predict/group1-shard5of5.bin");
 
-class PredictModel {
-  constructor(modelUrl) {
+
+class PredictModel{
+  IMAGE_SIZE: number;
+  inputMin: number;
+  inputMax: number;
+  normalizationConstant: number;
+  model: GraphModel;
+
+  constructor() {
     this.IMAGE_SIZE = 224;
     this.inputMin = -1;
     this.inputMax = 1;
@@ -49,7 +57,7 @@ class PredictModel {
       let resized = normalized;
       if (decodedImage.shape[0] !== this.IMAGE_SIZE || decodedImage.shape[1] !== this.IMAGE_SIZE) {
         const alignCorners = true;
-        resized = tf.image.resizeBilinear(normalized, [this.IMAGE_SIZE, this.IMAGE_SIZE], alignCorners);
+        resized = tf.image.resizeBilinear(normalized as any, [this.IMAGE_SIZE, this.IMAGE_SIZE], alignCorners);
       }
       const batched = tf.reshape(resized, [-1, this.IMAGE_SIZE, this.IMAGE_SIZE, 3]);
       return batched;
@@ -69,7 +77,7 @@ class PredictModel {
 
   getReducedFeatures = (originalFeatures) => {
     return tf.tidy(() => {
-      return originalFeatures.matMul(tf.tensor2d(vector));
+      return originalFeatures.matMul(tf.tensor2d(vector as any));
     });
   };
 }

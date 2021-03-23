@@ -4,7 +4,13 @@ import ControlSpace from '../common/ControlSpace';
 import { LinearGradient } from 'expo-linear-gradient';
 import IconButton from '../common/IconButton';
 
-function CameraControlSpace({ onCapture, onPredict, onOpenImageFolder }) {
+interface CameraControlSpaceProps {
+  onCapture: ()=>void;
+  onPredict: ()=>void;
+  onOpenImageFolder: ()=>void;
+}
+
+function CameraControlSpace({ onCapture, onPredict, onOpenImageFolder }:CameraControlSpaceProps) {
   return (
     <ControlSpace>
       <IconButton name='lightbulb-on' onPress={onPredict} text='推荐' />

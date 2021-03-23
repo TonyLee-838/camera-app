@@ -1,7 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ImageBackground } from 'react-native';
+import { View, StyleSheet, ImageBackground, ImageSourcePropType } from 'react-native';
 
-function CameraPreview({ image }) {
+interface CameraPreviewProps {
+  image: ImageSourcePropType
+}
+
+function CameraPreview({ image }: CameraPreviewProps) {
   return (
     <View style={styles.container}>
       <ImageBackground source={image} style={styles.image} />

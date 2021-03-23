@@ -12,11 +12,13 @@ import { PredictModel, PoseModel, CocoModel } from '../models';
 import { getPredictImages, getImagePose } from '../api/http';
 import tryCatch from '../helpers/error-handler';
 import { regulateBoxFromCocoModel } from '../helpers/boxTools'
+import Tip  from '../components/common/Tip'
 
 import { Tensor3D } from '@tensorflow/tfjs';
 import { DetectMode, Dimensions2D, PoseData, PoseResponse, PredictedImage, BoxPosition, SimilarImage } from '../types';
 
 function CameraScreen() {
+
   let glCamera = useRef(null!);
 
   useEffect(() => {
@@ -27,8 +29,8 @@ function CameraScreen() {
     try {
       await tf.ready();
       console.warn('tf - ready');
-      setPredictModel(new PredictModel());
-      setPoseModel(new PoseModel());
+      // setPredictModel(new PredictModel());
+      // setPoseModel(new PoseModel());
       setCocoModel(new CocoModel());
     } catch (error) {
       console.error(error);
@@ -45,7 +47,7 @@ function CameraScreen() {
   //mode: "photo" | "bounding" | "pose"
   const [mode, setMode] = useState<DetectMode>('photo');
 
-  const [userBox, setUserBox] = useState<BoxPosition>([]);
+  const [userBox, setUserBox] = useState<BoxPosition>(null!);
   const [similarImage, setSimilarImage] = useState<SimilarImage>(null!)
 
   const [userPose, setUserPose] = useState<PoseData>(null);
@@ -75,25 +77,25 @@ function CameraScreen() {
   const onSelectImage = async () => {
     const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
     setSimilarImage(image)
+    
+    // const keypoints = parts.map((part) => ({
+    //   position: {
+    //     x: part.x,
+    //     y: part.y,
+    //   },
+    //   part: part.label,
+    //   score: 1,
+    // }));
 
-    const keypoints = parts.map((part) => ({
-      position: {
-        x: part.x,
-        y: part.y,
-      },
-      part: part.label,
-      score: 1,
-    }));
+    // setSimilarImagePose({
+    //   width: image.width,
+    //   height: image.height,
+    //   keypoints,
+    // });
 
-    setSimilarImagePose({
-      width: image.width,
-      height: image.height,
-      keypoints,
-    });
-
-    await refreshUserPose();
-    setMode('pose');
-    setPredictedImages(null);
+    // await refreshUserPose();
+    // setMode('pose');
+    // setPredictedImages(null);
   };
 
   const getCameraImageTensor = () => {
@@ -116,17 +118,24 @@ function CameraScreen() {
     const box = regulateBoxFromCocoModel(result)
     setUserBox(box);
     
-    
     tensor.dispose();
   }
 
   const onPredict = ()=>{
     refreshUserBox()
   }
+
+  const [tipText,setTipText] = useState()
+  const onShowTip= (str)=>{
+    setTipText(str)
+  }
+
+
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
+          <Tip text={tipText} />
           <GLCamera ref={glCamera} />
           {mode === 'pose' && (
             <Pose
@@ -149,12 +158,12 @@ function CameraScreen() {
             onPredict={onPredict}
           />
 
-          {mode === "bounding" && cocoModel &&(
+          {mode === "bounding" && similarImage && userBox &&(
             <BoundingBox
               userBox={userBox}
               similarImage={similarImage}
               onNextFrame={refreshUserBox}
-              onFulfill={(s) => {console.warn(s);}}
+              onFulfill={(s) => onShowTip(s)}
             />
           )}
         </View>

@@ -3,7 +3,12 @@ import { StyleSheet } from 'react-native';
 import IconButton from '../common/IconButton';
 import ControlSpace from '../common/ControlSpace';
 
-function PreviewControlSpace({ onRetake, onSave }) {
+interface PreviewControlSpaceProps {
+  onRetake: ()=>void;
+  onSave: ()=>void;
+}
+
+function PreviewControlSpace({ onRetake, onSave }:PreviewControlSpaceProps) {
   return (
     <ControlSpace>
       <IconButton name='backup-restore' onPress={onRetake} text='重拍' />

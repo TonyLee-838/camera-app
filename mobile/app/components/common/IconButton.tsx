@@ -3,7 +3,14 @@ import { View, StyleSheet, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '../../config/colors';
 
-function IconButton({ name, size = 35, onPress, text }) {
+interface IconButtonProps{
+  name: any;
+  size?: number;
+  onPress: ()=>void;
+  text: string;
+}
+
+function IconButton({ name, size = 35, onPress, text }: IconButtonProps) {
   return (
     <View style={styles.container}>
       <MaterialCommunityIcons
@@ -13,7 +20,7 @@ function IconButton({ name, size = 35, onPress, text }) {
         size={size}
         onPress={onPress}
       />
-      <Text style>{text}</Text>
+      <Text style={styles.text}>{text}</Text>
     </View>
   );
 }

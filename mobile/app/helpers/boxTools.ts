@@ -41,7 +41,7 @@ export const inferUserState = (
   imageBox: regulatedBox,
   threshold: number
 ): userState => {
-  if (userBox.width === 0 && userBox.width === 0) return "no-person";
+  if (userBox.width === 0 && userBox.height === 0) return "no-person";
 
   const userPoints = boxToPoints(userBox);
   const imagePoints = boxToPoints(imageBox);
