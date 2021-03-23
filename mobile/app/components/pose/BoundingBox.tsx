@@ -7,15 +7,15 @@ import {
   BoxPosition,
   SimilarImage,
   regulatedBox,
-  UserStatus
+  UserStatus,
 } from "../../types";
 import colors from "../../config/colors";
 import {
   regulateImageBoxPosition,
   regulateUserBoxPosition,
 } from "../../helpers/regulatePosition";
-import { inferUserStatus } from '../../helpers/boxTools'
-import Tip from '../common/Tip'
+import { inferUserStatus } from "../../helpers/boxTools";
+import Tip from "../common/Tip";
 import axios from "axios";
 
 const COCO_INPUT_WIDTH = 750;
@@ -38,7 +38,7 @@ function BoundingBox({
   onFulfill,
 }: BoundingBoxProps) {
   const deviceDimensions: Dimensions2D = useWindowDimensions();
-  const [tipText,setTipText] = useState()
+  const [tipText, setTipText] = useState();
   const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([
     similarImage.x1,
     similarImage.y1,
@@ -70,31 +70,33 @@ function BoundingBox({
     deviceDimensions
   );
 
-
   const getUserStatus = () => {
-    const result = inferUserStatus(regulatedUserPosition,regulatedImagePosition)
-    return result
+    const result = inferUserStatus(
+      regulatedUserPosition,
+      regulatedImagePosition
+    );
+    return result;
   };
 
-
-  const onShowTip= (str)=>{
-    setTipText(str)
-  }
+  const onShowTip = (str) => {
+    setTipText(str);
+  };
 
   useEffect(() => {
-    setInterval(async () => {
+    const intervalId = setInterval(async () => {
       await onNextFrame();
-      const status = getUserStatus()
-      onShowTip(status)
-      if(status==='fine') onFulfill()
-    }, 500);
+      const status = getUserStatus();
+      onShowTip(status);
+      if (status === "fine") {
+        clearInterval(intervalId);
+        onFulfill();
+      }
+    }, 1000);
   }, []);
-
-
 
   return (
     <View style={styles.container}>
-      <Tip text={tipText} />
+      <Tip text={tipText} forBox={true} />
       {userBox && (
         <BoxResult position={regulatedUserPosition} color={colors.primary} />
       )}

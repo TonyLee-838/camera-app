@@ -1,6 +1,5 @@
+import { GLCamera } from "../components/camera";
+
 export type DetectMode = "photo" | "bounding" | "pose";
 
-export interface imageData{
-  name: string;
-  url: string;
-}
+export type StepTypes = 'selectImage'|'adjustDistance'|'adjustPose'|'goodToGo'

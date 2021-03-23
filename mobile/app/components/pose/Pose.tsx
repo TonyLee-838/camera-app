@@ -18,8 +18,9 @@ interface PoseProps {
   onNextFrame: () => Promise<void>;
 }
 
-const FULFILL_THRESHOLD = 30;
+const FULFILL_THRESHOLD = 100;
 const REFRESH_TIME = 150;
+let intervalId;
 
 const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
   // const [isFulfilled, setIsFulfilled] = useState<boolean>(false);
@@ -33,15 +34,17 @@ const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
     userKeypoints,
     FULFILL_THRESHOLD
   );
-
+  
+  
   useEffect(() => {
-    setInterval(async () => {
+    intervalId = setInterval(async () => {
       await onNextFrame();
     }, REFRESH_TIME);
   }, []);
 
   useEffect(() => {
     if (allFulfilled) {
+      clearInterval(intervalId)
       onFulfill();
     }
   }, [allFulfilled]);

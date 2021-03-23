@@ -34,8 +34,8 @@ export const regulateBoxFromCocoModel = (
 };
 
 // 推断用户当前所处的状态:“太远了”，“太近了”，“刚好”，“需要微调”，"无人"
-const VERTICAL_THRESHOLD = 12;
-const HORIZONTAL_THRESHOLD = 5;
+const VERTICAL_THRESHOLD = 20;
+const HORIZONTAL_THRESHOLD = 12;
 
 export const inferUserStatus = (
   userBox: regulatedBox,

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Alert} from 'react-native';
 import * as Permissions from 'expo-permissions';
 
 import CameraScreen from './app/screens/CameraScreen';
+import Step from './app/components/common/Step'
 
 export default function App() {
   const requestPermission = async () => {
@@ -15,7 +16,9 @@ export default function App() {
     requestPermission();
   }, []);
 
-  return <CameraScreen />;
+  return (
+  <CameraScreen />
+  );
 }
 
 const styles = StyleSheet.create({

@@ -1,31 +1,32 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
 import * as tf from '@tensorflow/tfjs';
 
 import Pose from '../components/pose/Pose';
 import BoundingBox from '../components/pose/BoundingBox';
 import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
-import { PredictModel, PoseModel, CocoModel } from '../models';
 import { getPredictImages, getImagePose } from '../api/http';
 import tryCatch from '../helpers/error-handler';
 import { regulateBoxFromCocoModel } from '../helpers/boxTools'
 import Tip  from '../components/common/Tip'
+import Step from '../components/common/Step';
 
-import { Tensor3D } from '@tensorflow/tfjs';
+import {  Tensor3D } from '@tensorflow/tfjs';
 import {
   DetectMode,
-  Dimensions2D,
   PoseData,
   PoseResponse,
   PredictedImage,
   BoxPosition,
   SimilarImage,
+  StepTypes,
 } from '../types';
 import { useModels } from '../hooks/useModels';
 
 function CameraScreen() {
-  
   let glCamera = useRef(null!);
 
   const {predictModel, poseModel, cocoModel} = useModels()
@@ -35,12 +36,15 @@ function CameraScreen() {
   const [predictedImages, setPredictedImages] = useState<PredictedImage[]>(null);
 
   const [mode, setMode] = useState<DetectMode>('photo');
+  const [step, setStep] = useState<StepTypes|null>(null)
 
   const [userBox, setUserBox] = useState<BoxPosition>(null!);
   const [similarImage, setSimilarImage] = useState<SimilarImage>(null!)
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
+
+  const [tipText, setTipText] = useState<string|null>(null)
 
   const searchForSimilarImages = async () => {
     try {
@@ -65,17 +69,20 @@ function CameraScreen() {
   });
 
   const onCapture = async () => {
-    await onSelectImage();
-    await refreshUserBox();
-    setMode('bounding');
+    setStep(null)
+    const image = await glCamera.current.captureImage()
+    setIsPreview(true)
+    setPreviewImage(image)
   };
 
   const onOpenImageFolder = () => {
-    setMode('photo');
+    ImagePicker.launchImageLibraryAsync()
   };
 
-  const onSelectImage = async () => {
-    const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
+  const onSelectImage = async (e, imageName) => {
+    setPredictedImages(null);
+
+    const { image, parts }: PoseResponse = await getImagePose({imageName});
     setSimilarImage(image);
 
     const keypoints = parts.map((part) => ({
@@ -93,15 +100,26 @@ function CameraScreen() {
       keypoints,
     });
 
-    await refreshUserPose();
+    await refreshUserBox()
     setMode('bounding');
-    setPredictedImages(null);
+    setStep('adjustDistance')
+
   };
 
-  const handleBoxFulfilled = ()=>{
+  const handleBoxFulfilled = async()=>{
+    await refreshUserPose();
     setMode('pose')
+    setStep('adjustPose')
     setUserBox(null)
     setSimilarImage(null)
+  }
+
+  const handlePoseFulfilled = ()=>{
+    setMode('photo')
+    setStep('goodToGo')
+    setUserPose(null)
+    setSimilarImagePose(null)
+    setTipText('完美！可以拍照了')
   }
 
   const getCameraImageTensor = () => {
@@ -129,12 +147,25 @@ function CameraScreen() {
 
   const onPredict = async()=>{
     await searchForSimilarImages();
+    setStep('selectImage')
   }
 
+  const onRetake = ()=>{
+    setIsPreview(false)
+    setPreviewImage(null)
+    setMode('photo')
+  }
 
+  const onSave = ()=>{
+    MediaLibrary.saveToLibraryAsync(previewImage.uri)
+    setTipText('保存成功!')
+    setTimeout(()=>{setTipText(null)},1500)
+  }
 
   return (
     <View style={{ flex: 1 }}>
+      {step && <Step currentStep={step}/>}
+      {tipText && <Tip text={tipText}/>}
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
@@ -146,14 +177,12 @@ function CameraScreen() {
               onFulfill={handleBoxFulfilled}
             />
           )}
-          {mode === 'pose' && (
+          {mode === 'pose' && userPose && similarImagePose &&(
             <Pose
               userPose={userPose}
               imagePose={similarImagePose}
               onNextFrame={refreshUserPose}
-              onFulfill={() => {
-                console.log('MATCHED!!!');
-              }}
+              onFulfill={handlePoseFulfilled}
             />
           )}
           {predictedImages && (
@@ -170,6 +199,19 @@ function CameraScreen() {
           />
         </View>
       )}
+      {
+        isPreview && (
+          <View style={styles.container}>
+            <CameraPreview
+              image={previewImage}
+            />
+            <PreviewControlSpace
+              onRetake={onRetake}
+              onSave={onSave}
+            />
+          </View>
+        )
+      }
     </View>
   );
 }
