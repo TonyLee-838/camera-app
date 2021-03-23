@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "go": "node src/index.js"
+    "go": "node src/index.js",
+    "start": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",

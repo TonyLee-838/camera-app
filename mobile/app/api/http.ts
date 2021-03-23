@@ -13,6 +13,8 @@ export const getPredictImages = async (params) => {
     url: '/predict',
     data: params,
   });
+  console.log('data', data);
+
   return data;
 };
 

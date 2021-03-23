@@ -7,7 +7,7 @@ import { POSENET_MODEL_URL } from '../api/http';
 const INPUT_WIDTH = 750;
 const INPUT_HEIGHT = 1500;
 export class PoseModel {
-  private model;
+  private model: posenet.PoseNet;
   constructor() {
     // this.modelUrl = modelUrl;
     this.init();
@@ -36,7 +36,7 @@ export class PoseModel {
     });
     console.log('Pose Model Loaded!');
   }
-  async analysePose(imageTensor) {
+  async analysePose(imageTensor: tf.Tensor) {
     const result = await this.model.estimateSinglePose(imageTensor);
 
     return {
