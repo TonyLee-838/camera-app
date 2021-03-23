@@ -78,25 +78,31 @@ function CameraScreen() {
     const { image, parts }: PoseResponse = await getImagePose({ imageName: '1' });
     setSimilarImage(image);
 
-    // const keypoints = parts.map((part) => ({
-    //   position: {
-    //     x: part.x,
-    //     y: part.y,
-    //   },
-    //   part: part.label,
-    //   score: 1,
-    // }));
+    const keypoints = parts.map((part) => ({
+      position: {
+        x: part.x,
+        y: part.y,
+      },
+      part: part.label,
+      score: 1,
+    }));
 
-    // setSimilarImagePose({
-    //   width: image.width,
-    //   height: image.height,
-    //   keypoints,
-    // });
+    setSimilarImagePose({
+      width: image.width,
+      height: image.height,
+      keypoints,
+    });
 
-    // await refreshUserPose();
-    // setMode('pose');
-    // setPredictedImages(null);
+    await refreshUserPose();
+    setMode('bounding');
+    setPredictedImages(null);
   };
+
+  const handleBoxFulfilled = ()=>{
+    setMode('pose')
+    setUserBox(null)
+    setSimilarImage(null)
+  }
 
   const getCameraImageTensor = () => {
     return tf.tidy(() => {
@@ -125,25 +131,19 @@ function CameraScreen() {
     await searchForSimilarImages();
   }
 
-  const [tipText,setTipText] = useState()
-  const onShowTip= (str)=>{
-    setTipText(str)
-  }
 
 
   return (
     <View style={{ flex: 1 }}>
       {!isPreview && (
         <View style={styles.container}>
-          <Tip text={tipText} />
           <GLCamera ref={glCamera} />
           {mode === "bounding" && similarImage && userBox &&(
             <BoundingBox
               userBox={userBox}
               similarImage={similarImage}
               onNextFrame={refreshUserBox}
-              onStatusChange={(status) => onShowTip(status)}
-              onFulfill={()=>console.warn('okokokokoko')}
+              onFulfill={handleBoxFulfilled}
             />
           )}
           {mode === 'pose' && (

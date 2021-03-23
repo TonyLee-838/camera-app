@@ -14,7 +14,8 @@ import {
   regulateImageBoxPosition,
   regulateUserBoxPosition,
 } from "../../helpers/regulatePosition";
-import {  inferUserStatus } from '../../helpers/boxTools'
+import { inferUserStatus } from '../../helpers/boxTools'
+import Tip from '../common/Tip'
 import axios from "axios";
 
 const COCO_INPUT_WIDTH = 750;
@@ -28,7 +29,6 @@ interface BoundingBoxProps {
   similarImage: SimilarImage;
   onNextFrame: () => Promise<void>;
   onFulfill: () => void;
-  onStatusChange: (status: UserStatus)=>void;
 }
 
 function BoundingBox({
@@ -36,10 +36,9 @@ function BoundingBox({
   similarImage,
   onNextFrame,
   onFulfill,
-  onStatusChange
 }: BoundingBoxProps) {
   const deviceDimensions: Dimensions2D = useWindowDimensions();
-
+  const [tipText,setTipText] = useState()
   const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([
     similarImage.x1,
     similarImage.y1,
@@ -77,11 +76,16 @@ function BoundingBox({
     return result
   };
 
+
+  const onShowTip= (str)=>{
+    setTipText(str)
+  }
+
   useEffect(() => {
     setInterval(async () => {
       await onNextFrame();
       const status = getUserStatus()
-      onStatusChange(getUserStatus())
+      onShowTip(status)
       if(status==='fine') onFulfill()
     }, 500);
   }, []);
@@ -90,6 +94,7 @@ function BoundingBox({
 
   return (
     <View style={styles.container}>
+      <Tip text={tipText} />
       {userBox && (
         <BoxResult position={regulatedUserPosition} color={colors.primary} />
       )}
