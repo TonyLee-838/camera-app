@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Alert} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import * as Permissions from 'expo-permissions';
 
 import CameraScreen from './app/screens/CameraScreen';
-import Step from './app/components/common/Step'
+import LoadingScreen from './app/screens/LoadingScreen';
+import { useModels } from './app/hooks/useModels';
+
+const TOTAL_PROGRESS = 4;
 
 export default function App() {
   const requestPermission = async () => {
@@ -12,12 +15,17 @@ export default function App() {
     if (!g1 || !g2) Alert.alert('无权限');
   };
 
+  const [progress, setProgress] = useState<number>(0);
+  const models = useModels(setProgress);
+
   useEffect(() => {
     requestPermission();
   }, []);
 
-  return (
-  <CameraScreen />
+  return progress < TOTAL_PROGRESS ? (
+    <LoadingScreen progress={progress} total={TOTAL_PROGRESS} />
+  ) : (
+    <CameraScreen models={models} />
   );
 }
 

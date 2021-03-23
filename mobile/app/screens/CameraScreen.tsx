@@ -25,10 +25,10 @@ import {
 } from '../types';
 import { useModels } from '../hooks/useModels';
 
-function CameraScreen() {
+function CameraScreen({ models }) {
   let glCamera = useRef(null!);
 
-  const {predictModel, poseModel, cocoModel} = useModels()
+  // const {predictModel, poseModel, cocoModel} = useModels()
 
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -38,7 +38,7 @@ function CameraScreen() {
   const [step, setStep] = useState<StepTypes|null>(null)
 
   const [userBox, setUserBox] = useState<BoxPosition>(null!);
-  const [similarImage, setSimilarImage] = useState<SimilarImage>(null!)
+  const [similarImage, setSimilarImage] = useState<SimilarImage>(null!);
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
@@ -49,7 +49,7 @@ function CameraScreen() {
     try {
       const imageTensor: Tensor3D = glCamera.current.getRealTimeImage();
 
-      const tensorArray: number[] = predictModel.getImageCompressedTensorArray(imageTensor);
+      const tensorArray: number[] = models.predictModel.getImageCompressedTensorArray(imageTensor);
 
       const result: PredictedImage[] = await getPredictImages({ features: tensorArray });
 
@@ -123,7 +123,7 @@ function CameraScreen() {
 
   const refreshUserPose = async () => {
     const tensor = getCameraImageTensor();
-    const pose = await poseModel.analysePose(tensor);
+    const pose = await models.poseModel.analysePose(tensor);
     setUserPose(pose);
 
     tensor.dispose();
@@ -131,14 +131,14 @@ function CameraScreen() {
 
   const refreshUserBox = async () => {
     const tensor = getCameraImageTensor();
-    const result = await cocoModel.getBoundingBox(tensor);
+    const result = await models.cocoModel.getBoundingBox(tensor);
     const box = regulateBoxFromCocoModel(result);
     setUserBox(box);
-    
+
     tensor.dispose();
   };
 
-  const onPredict = async()=>{
+  const onPredict = async () => {
     await searchForSimilarImages();
     setStep('selectImage')
   }
@@ -162,7 +162,7 @@ function CameraScreen() {
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === "bounding" && similarImage && userBox &&(
+          {mode === 'bounding' && similarImage && userBox && (
             <BoundingBox
               userBox={userBox}
               similarImage={similarImage}

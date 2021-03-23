@@ -1,6 +1,6 @@
-import * as tf from "@tensorflow/tfjs";
-import vector from "../data/eigenvectors.json";
-import { GraphModel } from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs';
+import vector from '../data/eigenvectors.json';
+import { GraphModel } from '@tensorflow/tfjs';
 
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 const modelJSON = require('../assets/model/predict/model.json');
@@ -10,8 +10,7 @@ const w3 = require('../assets/model/predict/group1-shard3of5.bin');
 const w4 = require('../assets/model/predict/group1-shard4of5.bin');
 const w5 = require('../assets/model/predict/group1-shard5of5.bin');
 
-
-export class PredictModel{
+export class PredictModel {
   IMAGE_SIZE: number;
   inputMin: number;
   inputMax: number;
@@ -23,13 +22,14 @@ export class PredictModel{
     this.inputMin = -1;
     this.inputMax = 1;
     this.normalizationConstant = (this.inputMax - this.inputMin) / 255.0;
-    this.init();
+    // this.init();
   }
 
   init = async () => {
     await tf.ready();
     this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1, w2, w3, w4, w5]));
-    console.log('Predict Model Loaded!');
+    // console.log('Predict Model Loaded!');
+    // return new Promise<void>((resolve) => resolve());
   };
 
   getImageCompressedTensorArray = (imageTensor) => {
@@ -57,7 +57,11 @@ export class PredictModel{
       let resized = normalized;
       if (decodedImage.shape[0] !== this.IMAGE_SIZE || decodedImage.shape[1] !== this.IMAGE_SIZE) {
         const alignCorners = true;
-        resized = tf.image.resizeBilinear(normalized as any, [this.IMAGE_SIZE, this.IMAGE_SIZE], alignCorners);
+        resized = tf.image.resizeBilinear(
+          normalized as any,
+          [this.IMAGE_SIZE, this.IMAGE_SIZE],
+          alignCorners
+        );
       }
       const batched = tf.reshape(resized, [-1, this.IMAGE_SIZE, this.IMAGE_SIZE, 3]);
       return batched;

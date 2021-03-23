@@ -8,7 +8,7 @@ export class CocoModel {
   private model;
 
   constructor() {
-    this.init();
+    // this.init();
   }
   async init() {
     await tf.ready();
@@ -28,7 +28,8 @@ export class CocoModel {
       // modelUrl: COCO_MODEL_URL,
     });
 
-    console.log('Coco Model Loaded!');
+    // console.log('Coco Model Loaded!');
+    // return new Promise<void>((resolve) => resolve());
   }
 
   getBoundingBox(imageTensor) {

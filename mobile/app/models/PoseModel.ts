@@ -3,6 +3,7 @@ import * as posenet from './posenet';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 
 import { POSENET_MODEL_URL } from '../api/http';
+import { callbacks } from '@tensorflow/tfjs';
 
 const INPUT_WIDTH = 750;
 const INPUT_HEIGHT = 1500;
@@ -10,7 +11,7 @@ export class PoseModel {
   private model: posenet.PoseNet;
   constructor() {
     // this.modelUrl = modelUrl;
-    this.init();
+    // this.init();
   }
   async init() {
     await tf.ready();
@@ -34,7 +35,9 @@ export class PoseModel {
       quantBytes: 1,
       multiplier: 1,
     });
-    console.log('Pose Model Loaded!');
+    // console.log('Pose Model Loaded!');
+
+    // return new Promise<void>((resolve) => resolve());
   }
   async analysePose(imageTensor: tf.Tensor) {
     const result = await this.model.estimateSinglePose(imageTensor);
