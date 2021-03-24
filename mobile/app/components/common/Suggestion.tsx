@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import colors from '../../config/colors';
-import FadeView from './FadeView';
+import FadeInOut from 'react-native-fade-in-out/dist/src';
 
 enum SUGGESTION_MESSAGE {
   tooFar = '请移近一点',
@@ -14,17 +14,29 @@ enum SUGGESTION_MESSAGE {
   tooLow = '请向上移动摄像头',
 }
 
-interface TipProps {
-  text: string;
+interface SuggestionProps {
+  content: string;
+  duration?: number;
+  animationDuration?: number;
 }
 
-function Tip({ text }: TipProps) {
-  console.log(text);
+function Suggestion({ content, duration = 1500, animationDuration = 300 }: SuggestionProps) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (content) {
+      setVisible(true);
+
+      setTimeout(() => {
+        setVisible(false);
+      }, duration);
+    }
+  }, [content]);
 
   return (
-    <FadeView visible={!!text} style={styles.container}>
-      <Text style={styles.text}>{SUGGESTION_MESSAGE[text] || text}</Text>
-    </FadeView>
+    <FadeInOut style={styles.container} visible={visible} duration={animationDuration}>
+      <Text style={styles.content}>{SUGGESTION_MESSAGE[content] || content}</Text>
+    </FadeInOut>
   );
 }
 
@@ -39,7 +51,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 5,
   },
-  text: {
+  content: {
     color: colors.darkGreen,
     fontSize: 18,
     marginHorizontal: 15,
@@ -47,4 +59,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Tip;
+export default Suggestion;

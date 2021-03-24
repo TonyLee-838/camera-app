@@ -3,12 +3,6 @@ import * as tf from '@tensorflow/tfjs';
 
 import { CocoModel, PoseModel, PredictModel } from '../models';
 
-interface Models {
-  predictModel: PredictModel;
-  poseModel: PoseModel;
-  cocoModel: CocoModel;
-}
-
 export const useModels = (setProgress: (number) => void) => {
   const [predictModel] = useState<PredictModel>(new PredictModel());
   const [poseModel] = useState<PoseModel>(new PoseModel());

@@ -9,8 +9,7 @@ import BoundingBox from '../components/pose/BoundingBox';
 import { GLCamera, CameraControlSpace, ImageScrollRoll } from '../components/camera/index';
 import { CameraPreview, PreviewControlSpace } from '../components/preview';
 import { getPredictImages, getImagePose } from '../api/http';
-import { regulateBoxFromCocoModel } from '../helpers/boxTools';
-import Tip from '../components/common/Tip';
+import Suggestion from '../components/common/Suggestion';
 import Step from '../components/common/Step';
 
 import { Tensor3D } from '@tensorflow/tfjs';
@@ -19,16 +18,17 @@ import {
   PoseData,
   PoseResponse,
   PredictedImage,
-  BoxPosition,
-  SimilarImage,
   StepTypes,
+  Models,
+  BoxData,
 } from '../types';
-import { useModels } from '../hooks/useModels';
 
-function CameraScreen({ models }) {
+interface CameraScreenProps {
+  models: Models;
+}
+
+function CameraScreen({ models }: CameraScreenProps) {
   let glCamera = useRef(null!);
-
-  // const {predictModel, poseModel, cocoModel} = useModels()
 
   const [isPreview, setIsPreview] = useState<Boolean>(false);
   const [previewImage, setPreviewImage] = useState(null);
@@ -37,13 +37,13 @@ function CameraScreen({ models }) {
   const [mode, setMode] = useState<DetectMode>('photo');
   const [step, setStep] = useState<StepTypes | null>(null);
 
-  const [userBox, setUserBox] = useState<BoxPosition>(null!);
-  const [similarImage, setSimilarImage] = useState<SimilarImage>(null!);
+  const [userBox, setUserBox] = useState<BoxData>(null!);
+  const [similarImageBox, setSimilarImageBox] = useState<BoxData>(null!);
 
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  const [tipText, setTipText] = useState<string>('');
+  const [suggestion, setSuggestion] = useState<string>('');
 
   const searchForSimilarImages = async () => {
     try {
@@ -63,7 +63,6 @@ function CameraScreen({ models }) {
 
   const onCapture = async () => {
     setStep(null);
-    setTipText('');
     const image = await glCamera.current.captureImage();
     setIsPreview(true);
     setPreviewImage(image);
@@ -77,7 +76,15 @@ function CameraScreen({ models }) {
     setPredictedImages(null);
 
     const { image, parts }: PoseResponse = await getImagePose({ imageName });
-    setSimilarImage(image);
+
+    const dimensions = {
+      width: image.width,
+      height: image.height,
+    };
+    setSimilarImageBox({
+      position: [image.x1, image.y1, image.x2, image.y2],
+      dimensions,
+    });
 
     const keypoints = parts.map((part) => ({
       position: {
@@ -89,8 +96,7 @@ function CameraScreen({ models }) {
     }));
 
     setSimilarImagePose({
-      width: image.width,
-      height: image.height,
+      dimensions,
       keypoints,
     });
 
@@ -102,24 +108,23 @@ function CameraScreen({ models }) {
   const handleBoxFulfilled = async () => {
     await refreshUserPose();
 
-    setTipText('完美!');
-    setTimeout(() => {
-      setTipText('');
-    }, 1500);
+    setSuggestion('完美!');
 
     setMode('pose');
     setStep('adjustPose');
+
     setUserBox(null);
-    setSimilarImage(null);
+    setSimilarImageBox(null);
   };
 
   const handlePoseFulfilled = () => {
     setMode('photo');
     setStep('goodToGo');
+
     setUserPose(null);
     setSimilarImagePose(null);
 
-    setTipText('完美！可以拍照了');
+    setSuggestion('完美！可以拍照了');
   };
 
   const getCameraImageTensor = () => {
@@ -130,6 +135,7 @@ function CameraScreen({ models }) {
 
   const refreshUserPose = async () => {
     const tensor = getCameraImageTensor();
+
     const pose = await models.poseModel.analysePose(tensor);
     setUserPose(pose);
 
@@ -138,8 +144,8 @@ function CameraScreen({ models }) {
 
   const refreshUserBox = async () => {
     const tensor = getCameraImageTensor();
-    const result = await models.cocoModel.getBoundingBox(tensor);
-    const box = regulateBoxFromCocoModel(result);
+
+    const box = await models.cocoModel.getBoundingBox(tensor);
     setUserBox(box);
 
     tensor.dispose();
@@ -158,22 +164,23 @@ function CameraScreen({ models }) {
 
   const onSave = () => {
     MediaLibrary.saveToLibraryAsync(previewImage.uri);
-    setTipText('保存成功!');
+    setSuggestion('保存成功!');
   };
 
   return (
     <View style={{ flex: 1 }}>
       {step && <Step currentStep={step} />}
-      <Tip text={tipText} />
+      <Suggestion content={suggestion} />
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
-          {mode === 'bounding' && similarImage && userBox && (
+          {mode === 'bounding' && similarImageBox && userBox && (
             <BoundingBox
               userBox={userBox}
-              similarImage={similarImage}
+              similarImageBox={similarImageBox}
               onNextFrame={refreshUserBox}
               onFulfill={handleBoxFulfilled}
+              onUserStatusChange={setSuggestion}
             />
           )}
           {mode === 'pose' && userPose && similarImagePose && (

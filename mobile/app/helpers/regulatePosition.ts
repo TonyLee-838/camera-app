@@ -8,10 +8,10 @@ export const getRegulatedImageKeypoints = (
   poseData: PoseData,
   deviceDimensions: Dimensions2D
 ): Keypoint[] => {
-  const imageDimensions = { width: poseData.width, height: poseData.height };
+  // const imageDimensions = { width: poseData.width, height: poseData.height };
   const regulated = poseData.keypoints.map(({ position, part, score }) => {
     return {
-      position: regulateImagePosePosition(position.x, position.y, imageDimensions, deviceDimensions),
+      position: regulateImagePosePosition(position.x, position.y, poseData.dimensions, deviceDimensions),
       part,
       score,
     };
@@ -24,20 +24,20 @@ export const getRegulatedUserKeypoints = (
   poseData: PoseData,
   deviceDimensions: Dimensions2D
 ): Keypoint[] => {
-  const inputDimensions = { width: poseData.width, height: poseData.height };
+  // const inputDimensions = { width: poseData.width, height: poseData.height };
 
   return poseData.keypoints.map(({ position, part, score }) => {
     return {
-      position: regulateUserPosePosition(position.x, position.y, inputDimensions, deviceDimensions),
+      position: regulateUserPosePosition(position.x, position.y, poseData.dimensions, deviceDimensions),
       part: switchLabel(part),
       score,
     };
   });
 };
 
-export const regulateCameraValue = (value: number, deviceWidth: number) => {
-  return (value * deviceWidth) / 750;
-};
+// export const regulateCameraValue = (value: number, deviceWidth: number) => {
+//   return (value * deviceWidth) / 750;
+// };
 
 export const regulateImageBoxPosition = (
   position: BoxPosition,

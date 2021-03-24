@@ -1,4 +1,11 @@
-export type BoxPosition = Array<number>
+import { Dimensions2D } from './pose';
+
+export type BoxPosition = [number, number, number, number];
+
+export interface BoxData {
+  position: BoxPosition;
+  dimensions: Dimensions2D;
+}
 
 export interface RegulatedBox {
   x: number;
@@ -8,9 +15,9 @@ export interface RegulatedBox {
 }
 
 export type BoxPoints = {
-    x: number;
-    y: number;
-}[]
+  x: number;
+  y: number;
+}[];
 
 export interface SimilarImage {
   width: number;
@@ -21,8 +28,15 @@ export interface SimilarImage {
   y2: number;
 }
 
-
-export type UserStatus = 'tooFar' | 'tooClose' | 'tooRight' | 'tooLeft' | 'fine' | 'none' | 'tooHigh' | 'tooLow'
+export type UserStatus =
+  | 'tooFar'
+  | 'tooClose'
+  | 'tooRight'
+  | 'tooLeft'
+  | 'fine'
+  | 'none'
+  | 'tooHigh'
+  | 'tooLow';
 
 // export enum SUGGESTION_MESSAGE {
 //   far = '请移近一点',

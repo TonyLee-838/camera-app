@@ -1,15 +1,13 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, ClippingRectangle } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 
-import { KeypointDistanceMap, PoseData } from '../../types';
-import { getDistancesOfKeypoints } from '../../helpers/getDistances';
-import { getRegulatedImageKeypoints, getRegulatedUserKeypoints } from '../../helpers/regulatePosition';
 import UserPose from './UserPose';
 import ImagePose from './ImagePose';
-import { Keypoint } from '../../models/posenet';
-import Lines from './UserLines';
-import colors from '../../config/colors';
 import DistanceLines from './DistanceLines';
+import { getDistancesOfKeypoints } from '../../helpers/getDistances';
+import { getRegulatedImageKeypoints, getRegulatedUserKeypoints } from '../../helpers/regulatePosition';
+
+import { PoseData } from '../../types';
 
 interface PoseProps {
   imagePose: PoseData;
@@ -20,11 +18,8 @@ interface PoseProps {
 
 const FULFILL_THRESHOLD = 30;
 const REFRESH_TIME = 150;
-let intervalId;
 
 const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
-  // const [isFulfilled, setIsFulfilled] = useState<boolean>(false);
-
   const deviceDimensions = useWindowDimensions();
 
   const userKeypoints = getRegulatedUserKeypoints(userPose, deviceDimensions);
@@ -36,14 +31,15 @@ const Pose = ({ imagePose, userPose, onNextFrame, onFulfill }: PoseProps) => {
   );
 
   useEffect(() => {
-    intervalId = setInterval(async () => {
+    const intervalId = setInterval(async () => {
       await onNextFrame();
     }, REFRESH_TIME);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
     if (allFulfilled) {
-      clearInterval(intervalId);
       onFulfill();
     }
   }, [allFulfilled]);

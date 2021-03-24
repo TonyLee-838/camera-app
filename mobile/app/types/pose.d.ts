@@ -2,8 +2,9 @@ export { Keypoint } from '@tensorflow-models/posenet';
 
 export interface PoseData {
   keypoints: Keypoint[];
-  width: number;
-  height: number;
+  dimensions: Dimensions2D;
+  // width: number;
+  // height: number;
 }
 
 export interface Dimensions2D {

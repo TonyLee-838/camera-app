@@ -29,8 +29,6 @@ const KeyPoint = ({ position, color, radius = 2.5, transparent = false }: KeyPoi
 
 const styles = StyleSheet.create({
   point: {
-    // backgroundColor: colors.primary,
-
     position: 'absolute',
   },
   label: {

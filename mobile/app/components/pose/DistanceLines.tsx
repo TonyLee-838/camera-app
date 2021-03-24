@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import SVG, { Line } from 'react-native-svg';
 
 import colors from '../../config/colors';
+import { getPointMap } from '../../helpers/getDistances';
 import { Keypoint } from '../../models/posenet';
 import { KeypointDistanceMap } from '../../types';
 
@@ -11,13 +12,6 @@ interface DistanceLinesProps {
   imageKeypoints: Keypoint[];
   distanceMap: KeypointDistanceMap;
 }
-
-const getPointMap = (keypoints: Keypoint[]) => {
-  return keypoints.reduce((result, point) => {
-    result[point.part] = point;
-    return result;
-  }, {});
-};
 
 const getBothExistAndFulfilledPoints = (userMap, imageMap, distanceMap) => {
   return Object.keys(userMap)

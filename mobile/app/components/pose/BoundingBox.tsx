@@ -1,116 +1,73 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, useWindowDimensions } from "react-native";
+import React, { useEffect } from 'react';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 
-import BoxResult from "./BoxResult";
-import {
-  Dimensions2D,
-  BoxPosition,
-  SimilarImage,
-  RegulatedBox,
-} from "../../types";
-import colors from "../../config/colors";
-import {
-  regulateImageBoxPosition,
-  regulateUserBoxPosition,
-} from "../../helpers/regulatePosition";
-import { inferUserStatus } from "../../helpers/boxTools";
-import Tip from "../common/Tip";
-import axios from "axios";
+import Box from './Box';
+import colors from '../../config/colors';
+import { regulateImageBoxPosition, regulateUserBoxPosition } from '../../helpers/regulatePosition';
+import { inferUserStatus } from '../../helpers/boxTools';
 
-const COCO_INPUT_WIDTH = 750;
-const COCO_INPUT_HEIGHT = 1500;
-
-let regulatedImagePosition: RegulatedBox;
-let regulatedUserPosition: RegulatedBox;
+import { Dimensions2D, UserStatus, BoxData } from '../../types';
 
 interface BoundingBoxProps {
-  userBox: BoxPosition;
-  similarImage: SimilarImage;
+  userBox: BoxData;
+  similarImageBox: BoxData;
   onNextFrame: () => Promise<void>;
   onFulfill: () => void;
+  onUserStatusChange: (userStatus: UserStatus) => void;
 }
 
 function BoundingBox({
   userBox,
-  similarImage,
+  similarImageBox,
   onNextFrame,
   onFulfill,
+  onUserStatusChange,
 }: BoundingBoxProps) {
   const deviceDimensions: Dimensions2D = useWindowDimensions();
-  const [tipText, setTipText] = useState();
-  const [similarImageBox, setSimilarImageBox] = useState<BoxPosition>([
-    similarImage.x1,
-    similarImage.y1,
-    similarImage.x2,
-    similarImage.y2,
-  ]);
 
-  const userDimensions: Dimensions2D = {
-    width: COCO_INPUT_WIDTH,
-    height: COCO_INPUT_HEIGHT,
-  };
-  const [
-    similarImageDimensions,
-    setSimilarImageDimensions,
-  ] = useState<Dimensions2D>({
-    width: similarImage.width,
-    height: similarImage.height,
-  });
-
-  regulatedImagePosition = regulateImageBoxPosition(
-    similarImageBox,
-    similarImageDimensions,
+  const regulatedImagePosition = regulateImageBoxPosition(
+    similarImageBox.position,
+    similarImageBox.dimensions,
     deviceDimensions
   );
 
-  regulatedUserPosition = regulateUserBoxPosition(
-    userBox,
-    userDimensions,
+  const regulatedUserPosition = regulateUserBoxPosition(
+    userBox.position,
+    userBox.dimensions,
     deviceDimensions
   );
 
-  const getUserStatus = () => {
-    const result = inferUserStatus(
-      regulatedUserPosition,
-      regulatedImagePosition
-    );
-    return result;
-  };
-
-  const onShowTip = (str) => {
-    setTipText(str);
-  };
+  const userStatus = inferUserStatus(regulatedUserPosition, regulatedImagePosition);
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
       await onNextFrame();
-      const status = getUserStatus();
-      onShowTip(status);
-      if (status === "fine") {
-        clearInterval(intervalId);
-        onFulfill();
-      }
     }, 1000);
+
+    return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    onUserStatusChange(userStatus);
+
+    if (userStatus === 'fine') {
+      onFulfill();
+    }
+  }, [userStatus]);
 
   return (
     <View style={styles.container}>
-      <Tip text={tipText} forBox={true} />
-      {userBox && (
-        <BoxResult position={regulatedUserPosition} color={colors.primary} />
-      )}
-      {similarImageBox && (
-        <BoxResult position={regulatedImagePosition} color={colors.secondary} />
-      )}
+      {userBox && <Box position={regulatedUserPosition} color={colors.primary} />}
+      {similarImageBox && <Box position={regulatedImagePosition} color={colors.secondary} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
 });
 

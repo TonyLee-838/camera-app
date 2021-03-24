@@ -1,11 +1,12 @@
 import * as coco from './coco-ssd';
 import * as tf from '@tensorflow/tfjs';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
-
-import { COCO_MODEL_URL } from '../api/http';
+import { findPersonBox } from '../helpers/boxTools';
 
 export class CocoModel {
-  private model;
+  private model: coco.ObjectDetection;
+  private INPUT_WIDTH = 750;
+  private INPUT_HEIGHT = 1500;
 
   constructor() {
     // this.init();
@@ -25,17 +26,22 @@ export class CocoModel {
 
     this.model = await coco.load(handler, {
       base: 'lite_mobilenet_v2',
-      // modelUrl: COCO_MODEL_URL,
     });
-
-    // console.log('Coco Model Loaded!');
-    // return new Promise<void>((resolve) => resolve());
   }
 
-  getBoundingBox(imageTensor) {
+  async getBoundingBox(imageTensor: tf.Tensor3D) {
     if (!this.model) return;
-    return this.model.detect(imageTensor, 1, 0.6);
 
-    // console.warn("this.model", this.model);
+    const detected = await this.model.detect(imageTensor, 1, 0.6);
+
+    const personBox = findPersonBox(detected);
+
+    return {
+      position: personBox,
+      dimensions: {
+        width: this.INPUT_WIDTH,
+        height: this.INPUT_HEIGHT,
+      },
+    };
   }
 }
