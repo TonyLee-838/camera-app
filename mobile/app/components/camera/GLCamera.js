@@ -101,16 +101,17 @@ const GLCameraScreen = forwardRef((props, ref) => {
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={{ width: '100%', height: '100%' }}
-        ref={(ref) => (camera = ref)}
-        defaultOnFocusComponent={true}
-      />
       <GLView
         style={{ width: '100%', height: '100%', opacity: 1 }}
         onContextCreate={onContextCreate}
         ref={(ref) => (glView = ref)}
       />
+      <Camera
+        style={{ width: '100%', height: '100%', opacity: 1 }}
+        ref={(ref) => (camera = ref)}
+        // defaultOnFocusComponent={true}
+      />
+      
     </View>
   );
 });

@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.camera.app.xx"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"

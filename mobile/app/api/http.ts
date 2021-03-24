@@ -1,6 +1,7 @@
 import axios from 'axios';
+import settings from '../config/settings'
 
-const BASE_URL = 'http://10.114.201.16:3003';
+const BASE_URL = settings.backendUrl;
 
 export const http = axios.create({
   baseURL: BASE_URL,
@@ -13,7 +14,6 @@ export const getPredictImages = async (params) => {
     url: '/predict',
     data: params,
   });
-  console.log('data', data);
 
   return data;
 };
