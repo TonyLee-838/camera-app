@@ -91,10 +91,10 @@ function CameraScreen({ models }: CameraScreenProps) {
       width: image.width,
       height: image.height,
     };
-    // setSimilarImageBox({
-    //   position: [image.x1, image.y1, image.x2, image.y2],
-    //   dimensions,
-    // });
+    setSimilarImageBox({
+      position: [image.x1, image.y1, image.x2, image.y2],
+      dimensions,
+    });
 
     const keypoints = parts.map((part) => ({
       position: {
