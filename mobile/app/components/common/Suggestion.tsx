@@ -12,7 +12,12 @@ enum SUGGESTION_MESSAGE {
   none = '没有检测到人像',
   tooHigh = '请向下移动摄像头',
   tooLow = '请向上移动摄像头',
+  checkLegs = '请调整腿部姿势',
+  checkArms = '请调整手臂姿势',
+  checkHead = '请调整头部姿势'
 }
+
+
 
 interface SuggestionProps {
   content: string;
@@ -20,7 +25,7 @@ interface SuggestionProps {
   animationDuration?: number;
 }
 
-function Suggestion({ content, duration = 1500, animationDuration = 300 }: SuggestionProps) {
+function Suggestion({ content, duration = 3000, animationDuration = 500 }: SuggestionProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

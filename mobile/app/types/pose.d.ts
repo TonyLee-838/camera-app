@@ -1,4 +1,4 @@
-export { Keypoint } from '@tensorflow-models/posenet';
+export { Keypoint } from "@tensorflow-models/posenet";
 
 export interface PoseData {
   keypoints: Keypoint[];
@@ -41,3 +41,35 @@ export interface Point {
   x: number;
   y: number;
 }
+
+export type Part =
+  | "nose"
+  | "leftEye"
+  | "rightEye"
+  | "leftEar"
+  | "rightEar"
+  | "leftShoulder"
+  | "rightShoulder"
+  | "leftElbow"
+  | "rightElbow"
+  | "leftWrist"
+  | "rightWrist"
+  | "leftHip"
+  | "rightHip"
+  | "leftKnee"
+  | "rightKnee"
+  | "leftAnkle"
+  | "rightAnkle";
+
+export type CheckStatus = "ready" | "now" | "fine";
+export type CheckProgress = "legs" | "arms" | "head";
+
+// export interface PointMapItem{
+//   [key: Part]:{
+
+//     position: Point;
+//     status: checkStatus;
+//   }
+// }
+
+// export type PointMap = {PointMapItem}

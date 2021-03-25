@@ -1,9 +1,7 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 
-import { Vector2D } from '@tensorflow-models/posenet/dist/types';
-
-import colors from '../../config/colors';
+import { Vector2D } from "@tensorflow-models/posenet/dist/types";
 
 interface KeyPointProps {
   position: Vector2D;
@@ -12,7 +10,12 @@ interface KeyPointProps {
   transparent?: boolean;
 }
 
-const KeyPoint = ({ position, color, radius = 2.5, transparent = false }: KeyPointProps) => {
+const KeyPoint = ({
+  position,
+  color,
+  radius = 2.5,
+  transparent = false,
+}: KeyPointProps) => {
   const style = {
     top: position.y,
     left: position.x,
@@ -29,10 +32,10 @@ const KeyPoint = ({ position, color, radius = 2.5, transparent = false }: KeyPoi
 
 const styles = StyleSheet.create({
   point: {
-    position: 'absolute',
+    position: "absolute",
   },
   label: {
-    position: 'absolute',
+    position: "absolute",
     width: 100,
   },
 });

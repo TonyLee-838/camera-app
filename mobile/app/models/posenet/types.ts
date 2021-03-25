@@ -52,7 +52,6 @@ export declare type Pose = {
 };
 
 export type PosenetInput =
-  | ImageData
   | HTMLImageElement
   | HTMLCanvasElement
   | HTMLVideoElement

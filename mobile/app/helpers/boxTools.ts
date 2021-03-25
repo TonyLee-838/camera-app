@@ -23,8 +23,8 @@ export const findPersonBox = (box: DetectedObject[]): BoxPosition => {
 };
 
 // 推断用户当前所处的状态:“太远了”，“太近了”，“刚好”，“需要微调”，"无人"
-const VERTICAL_THRESHOLD = 20;
-const HORIZONTAL_THRESHOLD = 12;
+const VERTICAL_THRESHOLD = 50;
+const HORIZONTAL_THRESHOLD = 50;
 
 export const inferUserStatus = (userBox: RegulatedBox, imageBox: RegulatedBox): UserStatus => {
   if (userBox.width === 0 && userBox.height === 0) return 'none';
