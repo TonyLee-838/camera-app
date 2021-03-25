@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 const settings = {
   dev: {
-    backendUrl: 'http://10.139.95.179:3003',
+    backendUrl: 'http://112.74.185.169:3003',
   },
   prod: {
     backendUrl: 'http://112.74.185.169:3003',

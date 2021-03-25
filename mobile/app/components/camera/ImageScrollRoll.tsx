@@ -43,7 +43,7 @@ function ImageScrollRoll({ images, onSelectImage }: ImageScrollRollProps) {
       <ExpandedImage expanded={isExpanded} imageUrl={expandedImageUrl} locationX={locationX} />
       <View style={styles.container}>
         <Text style={styles.text}>根据您的场景，为您推荐以下几张照片：</Text>
-        <ScrollView horizontal={true}>
+        <View style={styles.imageContainer}>
           {images.map((image, index) => (
             <TouchableOpacity
               key={image.name}
@@ -59,7 +59,7 @@ function ImageScrollRoll({ images, onSelectImage }: ImageScrollRollProps) {
               />
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
       </View>
     </>
   );
@@ -68,15 +68,10 @@ function ImageScrollRoll({ images, onSelectImage }: ImageScrollRollProps) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
+    width: '100%',
     bottom: '17%',
     minHeight: 110,
     backgroundColor: colors.white,
-  },
-  cover: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    backgroundColor: colors.black,
   },
 
   text: {
@@ -93,20 +88,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   imageContainer: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    zIndex: 20,
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  imageInside: {
-    width: '80%',
-    resizeMode: 'contain',
-    height: '80%',
-    opacity: 1,
-    borderRadius: 15,
+    flexDirection: 'row',
+    backgroundColor: colors.white,
   },
 });
 

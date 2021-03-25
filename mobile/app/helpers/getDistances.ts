@@ -4,11 +4,27 @@ export const getDistanceBetweenTwoPoints = (x1: number, x2: number, y1: number, 
   return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 };
 
-export const getPointMap = (keypoints: Keypoint[]) => {
+interface PointMapResult {
+  [index: string]: Keypoint;
+}
+
+export const getPointMap = (keypoints: Keypoint[]): PointMapResult => {
   return keypoints.reduce((result, point) => {
     result[point.part] = point;
     return result;
   }, {});
+};
+
+type SomeType = 'a' | 'b' | 'c';
+
+type SomeOtherType = {
+  [key in SomeType]: string;
+};
+
+const obj: SomeOtherType = {
+  a: 's',
+  b: 's',
+  c: 's',
 };
 
 export const getDistancesOfKeypoints = (

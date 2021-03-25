@@ -18,9 +18,10 @@ interface SuggestionProps {
   content: string;
   duration?: number;
   animationDuration?: number;
+  onFadeout: () => void;
 }
 
-function Suggestion({ content, duration = 1500, animationDuration = 300 }: SuggestionProps) {
+function Suggestion({ content, duration = 1500, animationDuration = 300, onFadeout }: SuggestionProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -30,6 +31,10 @@ function Suggestion({ content, duration = 1500, animationDuration = 300 }: Sugge
       setTimeout(() => {
         setVisible(false);
       }, duration);
+
+      setTimeout(() => {
+        onFadeout();
+      }, animationDuration);
     }
   }, [content]);
 
@@ -39,6 +44,8 @@ function Suggestion({ content, duration = 1500, animationDuration = 300 }: Sugge
     </FadeInOut>
   );
 }
+
+//Keypoints {part,location} ==> reduce
 
 const styles = StyleSheet.create({
   container: {

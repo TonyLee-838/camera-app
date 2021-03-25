@@ -170,7 +170,7 @@ function CameraScreen({ models }: CameraScreenProps) {
   return (
     <View style={{ flex: 1 }}>
       {step && <Step currentStep={step} />}
-      <Suggestion content={suggestion} />
+      <Suggestion content={suggestion} onFadeout={() => setSuggestion('')} />
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />

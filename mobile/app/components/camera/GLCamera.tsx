@@ -1,8 +1,9 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { StyleSheet, View, Platform } from "react-native";
-import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
-import { Camera } from "expo-camera";
-import { fromTexture } from "@tensorflow/tfjs-react-native";
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { StyleSheet, View, Platform } from 'react-native';
+import { ExpoWebGLRenderingContext, GLView } from 'expo-gl';
+import { Camera } from 'expo-camera';
+import { fromTexture } from '@tensorflow/tfjs-react-native';
+import * as tf from '@tensorflow/tfjs';
 
 const vertShaderSource = `#version 300 es
 precision highp float;
@@ -36,7 +37,7 @@ const GLCameraScreen = forwardRef((props, ref) => {
     depth: 3,
   };
   let textureDims;
-  if (Platform.OS === "ios") {
+  if (Platform.OS === 'ios') {
     textureDims = {
       height: 1920,
       width: 1080,
@@ -62,8 +63,9 @@ const GLCameraScreen = forwardRef((props, ref) => {
   };
 
   const getRealTimeImage = () => {
-    const imageTensor = fromTexture(_gl, cameraTexture, textureDims, targetDims);
-    return imageTensor;
+    return tf.tidy(() => {
+      return fromTexture(_gl, cameraTexture, textureDims, targetDims);
+    });
   };
 
   const onContextCreate = async (gl: ExpoWebGLRenderingContext) => {
@@ -83,14 +85,14 @@ const GLCameraScreen = forwardRef((props, ref) => {
     gl.linkProgram(program);
     gl.validateProgram(program);
     gl.useProgram(program);
-    const positionAttrib = gl.getAttribLocation(program, "position");
+    const positionAttrib = gl.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(positionAttrib);
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     const verts = new Float32Array([-2, 0, 0, -2, 2, 2]);
     gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
     gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform1i(gl.getUniformLocation(program, "cameraTexture"), 0);
+    gl.uniform1i(gl.getUniformLocation(program, 'cameraTexture'), 0);
     const loop = () => {
       requestAnimationFrame(loop);
       gl.clearColor(0, 0, 1, 1);
@@ -104,9 +106,9 @@ const GLCameraScreen = forwardRef((props, ref) => {
 
   return (
     <View style={styles.container}>
-      <Camera style={{ width: "100%", height: "100%" }} ref={cameraRef} defaultOnFocusComponent={true} />
+      <Camera style={{ width: '100%', height: '100%' }} ref={cameraRef} defaultOnFocusComponent={true} />
       <GLView
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: '100%', height: '100%' }}
         onContextCreate={onContextCreate}
         ref={glViewRef}
       />
