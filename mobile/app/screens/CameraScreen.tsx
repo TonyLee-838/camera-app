@@ -128,6 +128,7 @@ function CameraScreen({ models }: CameraScreenProps) {
   };
 
   const handlePoseFulfilled = () => {
+    //console.log("okokokokokokokok");
     setMode("photo");
     setStep("goodToGo");
 
@@ -180,7 +181,11 @@ function CameraScreen({ models }: CameraScreenProps) {
   return (
     <View style={{ flex: 1 }}>
       {step && <Step currentStep={step} />}
-      <Suggestion content={suggestion} onFadeout={() => setSuggestion('')} />
+      <Suggestion
+        content={suggestion}
+        onFadeout={() => setSuggestion("")}
+        duration={3000}
+      />
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
@@ -202,7 +207,12 @@ function CameraScreen({ models }: CameraScreenProps) {
               onUserStatusChange={setSuggestion}
             />
           )}
-          {predictedImages && <ImageScrollRoll images={predictedImages} onSelectImage={onSelectImage} />}
+          {predictedImages && (
+            <ImageScrollRoll
+              images={predictedImages}
+              onSelectImage={onSelectImage}
+            />
+          )}
           <CameraControlSpace
             onCapture={onCapture}
             onOpenImageFolder={onOpenImageFolder}

@@ -6,7 +6,7 @@ features=sys.argv[1]
 features=features.split(',')
 features=[ float(x) for x in features ]
 
-k=5
+k=4
 dimensions=500
 indexPath = "./data/index.ann"
 

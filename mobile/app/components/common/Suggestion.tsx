@@ -38,11 +38,10 @@ function Suggestion({
 
       setTimeout(() => {
         setVisible(false);
+        setTimeout(() => {
+          onFadeout();
+        }, animationDuration);
       }, duration);
-
-      setTimeout(() => {
-        onFadeout();
-      }, animationDuration);
     }
   }, [content]);
 
