@@ -1,8 +1,9 @@
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
-import { GLView } from 'expo-gl';
+import { ExpoWebGLRenderingContext, GLView } from 'expo-gl';
 import { Camera } from 'expo-camera';
 import { fromTexture } from '@tensorflow/tfjs-react-native';
+import * as tf from '@tensorflow/tfjs';
 
 const vertShaderSource = `#version 300 es
 precision highp float;
@@ -22,11 +23,13 @@ void main() {
 }`;
 
 let cameraTexture;
-let _gl;
+let _gl: WebGL2RenderingContext;
 
 const GLCameraScreen = forwardRef((props, ref) => {
-  let camera;
-  let glView;
+  const cameraRef = useRef<Camera>(null!);
+  const glViewRef = useRef<GLView>(null!);
+  // let camera;
+  // let glView;
 
   const targetDims = {
     height: 1500,
@@ -54,19 +57,21 @@ const GLCameraScreen = forwardRef((props, ref) => {
   }));
 
   const captureImage = async () => {
-    if (!camera) return null;
-    const image = await camera.takePictureAsync();
+    if (!cameraRef.current) return null;
+    const image = await cameraRef.current.takePictureAsync();
     return image;
   };
 
   const getRealTimeImage = () => {
-    const imageTensor = fromTexture(_gl, cameraTexture, textureDims, targetDims);
-    return imageTensor;
+    return tf.tidy(() => {
+      return fromTexture(_gl, cameraTexture, textureDims, targetDims);
+    });
   };
 
-  const onContextCreate = async (gl) => {
+  const onContextCreate = async (gl: ExpoWebGLRenderingContext) => {
     _gl = gl;
-    cameraTexture = await glView.createCameraTextureAsync(camera);
+    cameraTexture = await glViewRef.current.createCameraTextureAsync(cameraRef.current);
+    // cameraTexture = await glView.createCameraTextureAsync(camera);
 
     const vertShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertShader, vertShaderSource);
@@ -101,17 +106,12 @@ const GLCameraScreen = forwardRef((props, ref) => {
 
   return (
     <View style={styles.container}>
+      <Camera style={{ width: '100%', height: '100%' }} ref={cameraRef} defaultOnFocusComponent={true} />
       <GLView
-        style={{ width: '100%', height: '100%', opacity: 1 }}
+        style={{ width: '100%', height: '100%' }}
         onContextCreate={onContextCreate}
-        ref={(ref) => (glView = ref)}
+        ref={glViewRef}
       />
-      <Camera
-        style={{ width: '100%', height: '100%', opacity: 1 }}
-        ref={(ref) => (camera = ref)}
-        // defaultOnFocusComponent={true}
-      />
-      
     </View>
   );
 });

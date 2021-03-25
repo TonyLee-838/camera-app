@@ -10,10 +10,14 @@ export const useModels = (setProgress: (number) => void) => {
 
   const initializeModels = async () => {
     await predictModel.init();
+    console.log('Model Loaded!');
     setProgress(1.5);
+
     await poseModel.init();
+    console.log('Model Loaded!');
     setProgress(3);
     await cocoModel.init();
+    console.log('Model Loaded!');
     setProgress(4);
   };
 

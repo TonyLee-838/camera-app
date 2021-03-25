@@ -72,7 +72,7 @@ function CameraScreen({ models }: CameraScreenProps) {
     ImagePicker.launchImageLibraryAsync();
   };
 
-  const onSelectImage = async (e, imageName) => {
+  const onSelectImage = async (imageName: string) => {
     setPredictedImages(null);
 
     const { image, parts }: PoseResponse = await getImagePose({ imageName });
@@ -170,7 +170,7 @@ function CameraScreen({ models }: CameraScreenProps) {
   return (
     <View style={{ flex: 1 }}>
       {step && <Step currentStep={step} />}
-      <Suggestion content={suggestion} />
+      <Suggestion content={suggestion} onFadeout={() => setSuggestion('')} />
       {!isPreview && (
         <View style={styles.container}>
           <GLCamera ref={glCamera} />
@@ -191,13 +191,7 @@ function CameraScreen({ models }: CameraScreenProps) {
               onFulfill={handlePoseFulfilled}
             />
           )}
-          {predictedImages && (
-            <ImageScrollRoll
-              images={predictedImages}
-              style={styles.imageScrollRoll}
-              onSelectImage={onSelectImage}
-            />
-          )}
+          {predictedImages && <ImageScrollRoll images={predictedImages} onSelectImage={onSelectImage} />}
           <CameraControlSpace
             onCapture={onCapture}
             onOpenImageFolder={onOpenImageFolder}

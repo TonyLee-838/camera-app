@@ -3,12 +3,6 @@ import vector from '../data/eigenvectors.json';
 import { GraphModel } from '@tensorflow/tfjs';
 
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
-const modelJSON = require('../assets/model/predict/model.json');
-const w1 = require('../assets/model/predict/group1-shard1of5.bin');
-const w2 = require('../assets/model/predict/group1-shard2of5.bin');
-const w3 = require('../assets/model/predict/group1-shard3of5.bin');
-const w4 = require('../assets/model/predict/group1-shard4of5.bin');
-const w5 = require('../assets/model/predict/group1-shard5of5.bin');
 
 export class PredictModel {
   IMAGE_SIZE: number;
@@ -27,6 +21,12 @@ export class PredictModel {
 
   init = async () => {
     await tf.ready();
+    const modelJSON = require('../assets/model/predict/model.json');
+    const w1 = require('../assets/model/predict/group1-shard1of5.bin');
+    const w2 = require('../assets/model/predict/group1-shard2of5.bin');
+    const w3 = require('../assets/model/predict/group1-shard3of5.bin');
+    const w4 = require('../assets/model/predict/group1-shard4of5.bin');
+    const w5 = require('../assets/model/predict/group1-shard5of5.bin');
     this.model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [w1, w2, w3, w4, w5]));
     // console.log('Predict Model Loaded!');
     // return new Promise<void>((resolve) => resolve());
