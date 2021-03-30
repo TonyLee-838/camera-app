@@ -18,7 +18,7 @@ enum SUGGESTION_MESSAGE {
 }
 
 interface SuggestionProps {
-  content: string;
+  content: string | null;
   duration?: number;
   animationDuration?: number;
   onFadeout: () => void;
@@ -36,12 +36,12 @@ function Suggestion({
     if (content) {
       setVisible(true);
 
-      setTimeout(() => {
-        setVisible(false);
-        setTimeout(() => {
-          onFadeout();
-        }, animationDuration);
-      }, duration);
+      // setTimeout(() => {
+      //   setVisible(false);
+      //   setTimeout(() => {
+      //     onFadeout();
+      //   }, animationDuration);
+      // }, duration);
     }
   }, [content]);
 

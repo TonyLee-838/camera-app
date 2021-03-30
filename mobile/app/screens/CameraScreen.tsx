@@ -49,7 +49,7 @@ function CameraScreen({ models }: CameraScreenProps) {
   const [userPose, setUserPose] = useState<PoseData>(null);
   const [similarImagePose, setSimilarImagePose] = useState<PoseData>(null);
 
-  const [suggestion, setSuggestion] = useState<string>("");
+  const [suggestion, setSuggestion] = useState<string | null>("");
 
   const searchForSimilarImages = async () => {
     try {
@@ -74,6 +74,7 @@ function CameraScreen({ models }: CameraScreenProps) {
   const onCapture = async () => {
     setStep(null);
     const image = await glCamera.current.captureImage();
+    setSuggestion(null);
     setIsPreview(true);
     setPreviewImage(image);
   };
