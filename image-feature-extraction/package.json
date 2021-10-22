@@ -1,0 +1,26 @@
+{
+  "name": "model-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+
+  "scripts": {
+    "start": "node dist/index.js --max_old_space_size=4096",
+    "dev-build": "tsc",
+    "dev": "npm run dev-build;npm run go",
+    "go": "docker run -it --rm -p 3000:8080  -v D:/重要文件备份/大三下/计设/image-model-new-node/out:/app/out -v D:/重要文件备份/大三下/计设/image-model-new-node/dist:/app/dist -v D:/重要文件备份/大三下/计设/image-model-new-node/assets:/app/assets 8c7e03393722bb3862810e"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^3.2.0",
+    "array-shuffle": "^2.0.0",
+    "log-update": "^4.0.0",
+    "ml-matrix": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.32",
+    "typescript": "^4.2.3"
+  }
+}
